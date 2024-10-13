@@ -4,21 +4,12 @@ from pydantic import BaseModel
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnablePassthrough
 from langchain_openai import OpenAI, OpenAIEmbeddings
-# from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
-# from langchain_community.chat_models import ChatOllama
-
-from llama_index.core import VectorStoreIndex, SimpleDirectoryReader, Settings
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-from llama_index.llms.ollama import Ollama
-from llama_index.llms.openai import OpenAI
-from llama_index.embeddings.openai import OpenAIEmbedding
-from llama_index.vector_stores.chroma import ChromaVectorStore
-
-
 from src.utils import format_docs
 from src.prompt import prompt
 from dotenv import load_dotenv
+from langchain_community.chat_models import ChatOllama
 import os
 
 load_dotenv()
@@ -33,18 +24,16 @@ app = FastAPI()
 # )
 # llm = ChatOllama(model="mistral:latest")
 # llm = ChatOllama(model="mistral:latest", base_url="http://ollama_dev:11434")
-# llm = ChatOllama(model="mistral:latest", base_url=os.getenv("OLLAMA_BASE_URL"))
-llm = Ollama(model="mistral:latest", base_url=os.getenv("OLLAMA_BASE_URL"))
+llm = ChatOllama(model="mistral:latest", base_url=os.getenv("OLLAMA_BASE_URL"))
 
 # embeddings_model = OpenAIEmbeddings()
 # HuggingFaceEmbeddings 초기화
-embeddings_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")        
+embeddings_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")        
 
 
 # Vector Store
 # db = Chroma(persist_directory="./vector_store", embedding_function=OpenAIEmbeddings())
 db = Chroma(persist_directory="./vector_store", embedding_function=embeddings_model)
-
 retriever = db.as_retriever(search_type="similarity")
 
 origins = [
