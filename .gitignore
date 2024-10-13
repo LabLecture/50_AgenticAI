@@ -3,3 +3,4 @@ frontend/node_modules
 /venv
 /backend/vector_store
 /backend/__pycache__
+/backend/vector_store
