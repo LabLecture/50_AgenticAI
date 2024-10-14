@@ -44,8 +44,10 @@ const Chat = () => {
               ]);
 
               const response = await axios.post("http://localhost:8000/chat", {
-                question: textContent,
-              });
+                query: textContent,
+                }, {
+                  headers: { "Content-Type": "application/json" }
+                });
 
               setMessages((prev) => [
                 ...prev,
