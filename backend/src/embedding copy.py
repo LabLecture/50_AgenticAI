@@ -31,7 +31,6 @@ if __name__ == "__main__":
         )
 
         docs = loader.load_and_split(text_splitter)
-
         
         vector_store = Chroma.from_documents(
             docs,
