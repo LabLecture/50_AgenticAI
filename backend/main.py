@@ -36,9 +36,10 @@ app = FastAPI()
 # llm = ChatOllama(model="mistral:latest")
 # llm = ChatOllama(model="mistral:latest", base_url="http://ollama_dev:11434")
 # llm = ChatOllama(model="mistral:latest", base_url=os.getenv("OLLAMA_BASE_URL"))
-llm = Ollama(model="mistral:latest", temperature=0.1, request_timeout=360000)
+# llm = Ollama(model="mistral:latest", temperature=0.1, request_timeout=360000)
+llm = Ollama(model="mistral:latest", base_url="http://192.168.1.209:11435", temperature=0.1, request_timeout=360000)
 # llm = Ollama(model="mistral:latest", base_url=os.getenv("OLLAMA_BASE_URL"))
-# llm = Ollama(model="llama-3.2-Korean-Bllossom-3B:latest", base_url="http://192.168.1.209:11435")     # 건영 10/7 수정
+# llm = Ollama(model="llama-3.2-Korean-Bllossom-3B:latest", base_url="http://192.168.1.209:11435", temperature=0.1, request_timeout=360000)     # 건영 10/7 수정
 
 # embeddings_model = OpenAIEmbeddings()
 # HuggingFaceEmbeddings 초기화

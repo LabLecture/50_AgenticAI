@@ -45,15 +45,13 @@ const Chat = () => {
 
               const response = await axios.post("http://localhost:8000/chat", {
                 query: textContent,
-                }, {
-                  headers: { "Content-Type": "application/json" }
                 });
-
+              console.log("-----> response : ", response)  
               setMessages((prev) => [
                 ...prev,
                 {
                   direction: "incoming",
-                  content: response.data.answer,
+                  content: response.data.answer.response,
                   sentTime: new Date(),
                   sender: "ai",
                 },
