@@ -36,7 +36,7 @@ app = FastAPI()
 # llm = ChatOllama(model="mistral:latest")
 # llm = ChatOllama(model="mistral:latest", base_url="http://ollama_dev:11434")
 # llm = ChatOllama(model="mistral:latest", base_url=os.getenv("OLLAMA_BASE_URL"))
-# llm = Ollama(model="mistral:latest", temperature=0.1, request_timeout=360000)
+llm = Ollama(model="mistral:latest", temperature=0.1, request_timeout=360000)
 llm = Ollama(model="mistral:latest", base_url="http://192.168.1.209:11435", temperature=0.1, request_timeout=360000)
 # llm = Ollama(model="mistral:latest", base_url=os.getenv("OLLAMA_BASE_URL"))
 # llm = Ollama(model="llama-3.2-Korean-Bllossom-3B:latest", base_url="http://192.168.1.209:11435", temperature=0.1, request_timeout=360000)     # 건영 10/7 수정
@@ -55,16 +55,12 @@ print(" main.py ---------------> 1. embeddings_model ", embeddings_model)
 # ChromaDB 클라이언트 생성 및 기존 컬렉션 로드
 chroma_client = chromadb.PersistentClient(path="./vector_store")
 chroma_collection = chroma_client.get_collection("my_collection")
-print(" main.py ---------------> 2. chroma_collection ", chroma_collection)
 
 # ChromaVectorStore 생성
 vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
-print(" main.py ---------------> 3. vector_store ", vector_store)
 
 # StorageContext 생성
 storage_context = StorageContext.from_defaults(vector_store=vector_store)
-print(" main.py ---------------> 4. storage_context ", storage_context)
-
 Settings.embed_model = embeddings_model
 
 # VectorStoreIndex 생성 (이미 존재하는 vector store 사용)
@@ -73,11 +69,9 @@ index = VectorStoreIndex.from_vector_store(
     storage_context=storage_context,
     # embedding_function=embeddings_model,
 )
-print(" main.py ---------------> 5. VectorStoreIndex.from_vector_store ", index)
 
 # 검색을 위한 retriever 생성
 # retriever = index.as_retriever(similarity_top_k=3)
-# print(" main.py ---------------> 6. retriever ", retriever)
 
 origins = [
     "http://localhost",
@@ -109,34 +103,20 @@ query_engine = index.as_query_engine(
     llm=llm,                               
     similarity_top_k=3,
 )
-print(" main.py ---------------> 7. query_engine ", query_engine)
 
 qa_prompt_key = "response_synthesizer:text_qa_template"
 # query_engine.update_prompts({qa_prompt_key: prompt})
 query_engine.update_prompts(prompt)
-print(" main.py ---------------> 8. query_engine ", query_engine)
-
-
 
 @app.post("/chat/")
 # async def chat(query: UseQuery):
 async def chat(request: Request):
     """chat endpoint"""
     try:
-        print(" main.py def chat ---------------> chat start")
-        
         body = await request.json()
-        print(" main.py def chat ---------------> body", body)
-        # inner_body = json.loads(body['body'])
-        # query = inner_body["query"]
-        # query = body[query]
         query = body["query"]
-        # answer = rag_chain.invoke(query.question).strip()
-        print(" main.py def chat ---------------> query", query)
-        
         answer = query_engine.query(query)
-        print(" main.py def chat ---------------> answer", answer)
-        
+        # answer = rag_chain.invoke(query.question).strip()
         return {"answer": answer}
     except Exception as e:
         print(e)
