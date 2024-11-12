@@ -1,17 +1,9 @@
 import os
-import shutil
-
 from pathlib import Path
 from llama_index.core import SimpleDirectoryReader, VectorStoreIndex, StorageContext
 
-from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.core import StorageContext
-from llama_index.core import ServiceContext
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-from llama_index.core.node_parser import LangchainNodeParser
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-
-from llama_index.core import Settings
 
 # import chromadb
 from dotenv import load_dotenv
@@ -28,7 +20,6 @@ from sqlalchemy import create_engine, text
 from sqlalchemy import Column, String, Integer
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import Session
 from pydantic import BaseModel
 from pathlib import Path
 from datetime import datetime
@@ -81,7 +72,17 @@ class ExcelReader:
         else:
             return str(date_value)
 
-def load_files(input_files):
+def load_files(input_dir):
+
+    # 디렉토리 내의 모든 파일 경로를 리스트로 수집
+    file_paths = []
+    for ext in [".pdf", ".xlsx", ".xls"]:  # 처리하고자 하는 파일 확장자
+        file_paths.extend(list(input_dir.glob(f"*{ext}")))
+    
+    if not file_paths:
+        raise ValueError(f"No supported files found in {input_dir}")
+        
+    print(f"Found files: {[f.name for f in file_paths]}")
     
     parser = LlamaParse(
         api_key="llx-JItT6ZbUs6c05fS0nNr3luAD13gxvfPouCrnwmNbZlv2nblg",
@@ -90,13 +91,14 @@ def load_files(input_files):
     )
         
     excel_reader = ExcelReader()
-    file_extractor = {
+    file_extractor = {              # 구동되고 나면 주석 테스트
         ".pdf": parser,
         ".xlsx": excel_reader,
         ".xls": excel_reader
     }
     reader = SimpleDirectoryReader(
-        input_files=input_files
+        input_files=[str(p) for p in file_paths],  # Path 객체를 문자열로 변환
+        file_extractor=file_extractor
     )
     docs = reader.load_data()
     
@@ -231,19 +233,29 @@ def insert_vector_store(schema_name: str, table_name: str, file_path: Path = Non
 
 if __name__ == "__main__":
     try:
-        file_path = Path("../data")
+        file_path = Path("../data").resolve()
+        print("---------> 1")
+
         connection_string = os.environ["POSTGRESQL_CONNECTION_STRING"]
+        print("---------> 2 connection_string: ", connection_string)
 
         docs = load_files(file_path)
+        print("---------> 3")
         nodes = split(docs)
+        print("---------> 4")
         index = create_index(nodes, schema_name="public", table_name="tmp_chatbot")
+        print("---------> 5")
+
+        response = "Failed: Index creation failed"      # response 변수 초기화
         
         if index is not None:
+            index.storage_context.persist()             # 벡터 스토어에 데이터 저장
             response = insert_vector_store(
                 schema_name="public",
                 table_name="tmp_chatbot",
                 file_path=file_path
             )
+        print("---------> 6")
             
         if response == "Success":
             print("Embedding Postgre Success")

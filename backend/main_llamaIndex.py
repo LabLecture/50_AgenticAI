@@ -1,23 +1,27 @@
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+# from langchain_core.output_parsers import StrOutputParser
+# from langchain_core.runnables import RunnablePassthrough
+# from langchain_openai import OpenAI, OpenAIEmbeddings
+# from langchain_community.embeddings import HuggingFaceEmbeddings
+# from langchain_chroma import Chroma
+# from langchain_community.chat_models import ChatOllama
 
-from llama_index.core import VectorStoreIndex
+from llama_index.core import VectorStoreIndex, PromptTemplate, Settings
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.llms.ollama import Ollama
+from llama_index.core import StorageContext
+from llama_index.vector_stores.chroma import ChromaVectorStore
+from llama_index.core import Settings
+import json
+import chromadb
 
 from src.utils import format_docs
 # from src.prompt import prompt
 from src.prompt_llamaIndex import prompt
 from dotenv import load_dotenv
 import os
-
-from llama_index.core.schema import NodeWithScore          
-from llama_index.core.postprocessor.types import BaseNodePostprocessor
-from llama_index.vector_stores.postgres import PGVectorStore
-
-from typing import List                                     
-from typing import Optional
 
 load_dotenv()
 app = FastAPI()
@@ -43,36 +47,28 @@ embeddings_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-Mi
 print(" main.py ---------------> 1. embeddings_model ", embeddings_model)
 
 # Vector Store
-vector_store = PGVectorStore.from_params(
-    database    = "skku",
-    host        = "192.168.1.239",
-    password    = "aithepwd8#",
-    port        = "55432",
-    user        = "aitheuser1",
-    schema_name = "public",
-    table_name  = "tmp_chatbot",
-    embed_dim=1536,     # embed_model에 따라 dimention 변경
+# db = Chroma(persist_directory="./vector_store", embedding_function=OpenAIEmbeddings())
+# db = Chroma(persist_directory="./vector_store", embedding_function=embeddings_model)
+
+# retriever = db.as_retriever(search_type="similarity")
+
+# ChromaDB 클라이언트 생성 및 기존 컬렉션 로드
+chroma_client = chromadb.PersistentClient(path="./vector_store")
+chroma_collection = chroma_client.get_collection("my_collection")
+
+# ChromaVectorStore 생성
+vector_store = ChromaVectorStore(chroma_collection=chroma_collection)
+
+# StorageContext 생성
+storage_context = StorageContext.from_defaults(vector_store=vector_store)
+Settings.embed_model = embeddings_model
+
+# VectorStoreIndex 생성 (이미 존재하는 vector store 사용)
+index = VectorStoreIndex.from_vector_store(
+    vector_store,
+    storage_context=storage_context,
+    # embedding_function=embeddings_model,
 )
-
-index = VectorStoreIndex.from_vector_store(vector_store=vector_store)  
-
-class CustomPostprocessor(BaseNodePostprocessor):       # 주원9/27 https://docs.llamaindex.ai/en/stable/module_guides/querying/node_postprocessors/
-    def _postprocess_nodes(
-        self, nodes: List[NodeWithScore], query_bundle: Optional[QueryBundle]
-    ) -> List[NodeWithScore]:
-        print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-        for n in nodes:
-            print("nodes\n" + n.metadata['file_name'])
-            # print(n.metadata['document_name'])
-            print(n)
-            print("query_bundle\n")
-            print(query_bundle)
-            # n.score -= 1      # 스코어를 조정하거나 없으면 제외되니 OK
-
-        return nodes
-
-custom_postprocessor = CustomPostprocessor()
-node_postprocessors = [custom_postprocessor]
 
 # 검색을 위한 retriever 생성
 # retriever = index.as_retriever(similarity_top_k=3)
@@ -104,10 +100,8 @@ class UserQuery(BaseModel):
 
 # llama_index
 query_engine = index.as_query_engine(
-    llm=llm,     
-    streaming=True,                            
-    similarity_top_k=20,
-    node_postprocessors=node_postprocessors
+    llm=llm,                               
+    similarity_top_k=3,
 )
 
 qa_prompt_key = "response_synthesizer:text_qa_template"
