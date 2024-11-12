@@ -153,52 +153,10 @@ def create_index(docs, schema_name="public", table_name="tmp"):
     except Exception as e:
         print("create_index Exception:", str(e))
         return None
-
-# Database connection setup
-url = os.environ["POSTGRESQL_CONNECTION_STRING"]
-dbschema = "graywhale,public"
-
-engine = create_engine(url, connect_args={'options': '-csearch_path={}'.format(dbschema)})
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
-
-# Pydantic model for vector store creation
-# class VectorStoreCreate(BaseModel):
-#     dataset_sq: int | None = None
-#     vector_store_name: str
-#     indexing_strategy: str = "default"
-#     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
-#     schema_name: str
-#     table_name: str
-#     etc: str = ""
-#     order: int = 1
-
-# # SQLAlchemy model for vector store
-# class VectorStore(Base):
-#     __tablename__ = "vector_stores"
-
-#     vector_store_sq = Column(Integer, primary_key=True, index=True)
-#     dataset_sq = Column(Integer, nullable=True)
-#     eval_dataset_sq = Column(Integer, nullable=True)
-#     strategy_id = Column(String)
-#     vector_store_name = Column(String)
-#     vector_store_schema = Column(String)
-#     vector_store_table = Column(String)
-#     vector_store_desc = Column(String)
-#     display_order = Column(Integer)
-
-# def get_db():
-#     db = SessionLocal()
-#     try:
-#         db.execute(text("SET timezone = 'Asia/Seoul';"))
-#         yield db
-#     finally:
-#         db.close()
-
 if __name__ == "__main__":
     try:
         file_path = Path("../data").resolve()
-        connection_string = os.environ["POSTGRESQL_CONNECTION_STRING"]
+        # connection_string = os.environ["POSTGRESQL_CONNECTION_STRING"]
         docs = load_files(file_path)
         nodes = split(docs)
         index = create_index(nodes, schema_name="public", table_name="tmp_chatbot")
