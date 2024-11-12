@@ -126,7 +126,7 @@ def create_index(docs, schema_name="public", table_name="tmp"):
         user        = "aitheuser1",
         schema_name = schema_name,
         table_name  = table_name,
-        embed_dim   = 1536,
+        embed_dim   = 384,
     )
     
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
@@ -151,6 +151,7 @@ def create_index(docs, schema_name="public", table_name="tmp"):
                                     embed_model=embed_model)
         return index
     except Exception as e:
+        print("create_index Exception:", str(e))
         return None
 
 # Database connection setup
@@ -162,105 +163,49 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 # Pydantic model for vector store creation
-class VectorStoreCreate(BaseModel):
-    dataset_sq: int | None = None
-    vector_store_name: str
-    indexing_strategy: str = "default"
-    embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
-    schema_name: str
-    table_name: str
-    etc: str = ""
-    order: int = 1
+# class VectorStoreCreate(BaseModel):
+#     dataset_sq: int | None = None
+#     vector_store_name: str
+#     indexing_strategy: str = "default"
+#     embedding_model: str = "sentence-transformers/all-MiniLM-L6-v2"
+#     schema_name: str
+#     table_name: str
+#     etc: str = ""
+#     order: int = 1
 
-# SQLAlchemy model for vector store
-class VectorStore(Base):
-    __tablename__ = "vector_stores"
+# # SQLAlchemy model for vector store
+# class VectorStore(Base):
+#     __tablename__ = "vector_stores"
 
-    vector_store_sq = Column(Integer, primary_key=True, index=True)
-    dataset_sq = Column(Integer, nullable=True)
-    eval_dataset_sq = Column(Integer, nullable=True)
-    strategy_id = Column(String)
-    vector_store_name = Column(String)
-    vector_store_schema = Column(String)
-    vector_store_table = Column(String)
-    vector_store_desc = Column(String)
-    display_order = Column(Integer)
+#     vector_store_sq = Column(Integer, primary_key=True, index=True)
+#     dataset_sq = Column(Integer, nullable=True)
+#     eval_dataset_sq = Column(Integer, nullable=True)
+#     strategy_id = Column(String)
+#     vector_store_name = Column(String)
+#     vector_store_schema = Column(String)
+#     vector_store_table = Column(String)
+#     vector_store_desc = Column(String)
+#     display_order = Column(Integer)
 
-def get_db():
-    db = SessionLocal()
-    try:
-        db.execute(text("SET timezone = 'Asia/Seoul';"))
-        yield db
-    finally:
-        db.close()
-
-def insert_vector_store(schema_name: str, table_name: str, file_path: Path = None):
-    try:
-        # Create vector store object
-        vector_store_data = VectorStoreCreate(
-            vector_store_name=f"{table_name}_store",
-            schema_name=schema_name,
-            table_name=table_name,
-            etc=f"Created from {file_path}" if file_path else "Created programmatically"
-        )
-
-        # Get database session
-        db = next(get_db())
-        
-        # Create vector store record
-        vector_store = VectorStore(
-            dataset_sq=vector_store_data.dataset_sq,
-            eval_dataset_sq=None,
-            strategy_id=vector_store_data.indexing_strategy,
-            vector_store_name=vector_store_data.vector_store_name,
-            vector_store_schema=vector_store_data.schema_name,
-            vector_store_table=vector_store_data.table_name,
-            vector_store_desc=vector_store_data.etc,
-            display_order=vector_store_data.order
-        )
-
-        # Add and commit to database
-        db.add(vector_store)
-        db.commit()
-        
-        return "Success"
-    
-    except Exception as e:
-        if 'db' in locals():
-            db.rollback()
-        print("Insert vector store failed:", str(e))
-        return f"Failed: {str(e)}"
+# def get_db():
+#     db = SessionLocal()
+#     try:
+#         db.execute(text("SET timezone = 'Asia/Seoul';"))
+#         yield db
+#     finally:
+#         db.close()
 
 if __name__ == "__main__":
     try:
         file_path = Path("../data").resolve()
-        print("---------> 1")
-
         connection_string = os.environ["POSTGRESQL_CONNECTION_STRING"]
-        print("---------> 2 connection_string: ", connection_string)
-
         docs = load_files(file_path)
-        print("---------> 3")
         nodes = split(docs)
-        print("---------> 4")
         index = create_index(nodes, schema_name="public", table_name="tmp_chatbot")
-        print("---------> 5")
-
-        response = "Failed: Index creation failed"      # response 변수 초기화
         
         if index is not None:
             index.storage_context.persist()             # 벡터 스토어에 데이터 저장
-            response = insert_vector_store(
-                schema_name="public",
-                table_name="tmp_chatbot",
-                file_path=file_path
-            )
-        print("---------> 6")
-            
-        if response == "Success":
             print("Embedding Postgre Success")
-        else:
-            print("Embedding Postgre Failed:", response)
             
     except Exception as e:
         print("Embedding Postgre create_vector_store Exception:", str(e))
