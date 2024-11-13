@@ -3,8 +3,8 @@ from pathlib import Path
 from llama_index.core import SimpleDirectoryReader, VectorStoreIndex, StorageContext
 
 from llama_index.core import StorageContext
-# from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-from llama_index.embeddings.openai import OpenAIEmbedding
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+# from llama_index.embeddings.openai import OpenAIEmbedding
 
 # import chromadb
 from dotenv import load_dotenv
@@ -122,12 +122,12 @@ def create_index(docs, schema_name="public", table_name="tmp"):
         user        = "aitheuser1",
         schema_name = schema_name,
         table_name  = table_name,
-        embed_dim   = 1536,
+        embed_dim   = 384,
     )
     
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
-    # embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
-    embed_model = OpenAIEmbedding()
+    embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    # embed_model = OpenAIEmbedding()
     
     doc_or_node = is_doc(docs[0])
 
