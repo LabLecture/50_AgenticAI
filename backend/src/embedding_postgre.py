@@ -3,7 +3,8 @@ from pathlib import Path
 from llama_index.core import SimpleDirectoryReader, VectorStoreIndex, StorageContext
 
 from llama_index.core import StorageContext
-from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+# from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.embeddings.openai import OpenAIEmbedding
 
 # import chromadb
 from dotenv import load_dotenv
@@ -16,11 +17,6 @@ from llama_index.vector_stores.postgres import PGVectorStore
 import pandas as pd
 import numpy as np
 
-from sqlalchemy import create_engine, text
-from sqlalchemy import Column, String, Integer
-from sqlalchemy.orm import sessionmaker, declarative_base
-from sqlalchemy.ext.declarative import declarative_base
-from pydantic import BaseModel
 from pathlib import Path
 from datetime import datetime
 
@@ -126,11 +122,12 @@ def create_index(docs, schema_name="public", table_name="tmp"):
         user        = "aitheuser1",
         schema_name = schema_name,
         table_name  = table_name,
-        embed_dim   = 384,
+        embed_dim   = 1536,
     )
     
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
-    embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    # embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
+    embed_model = OpenAIEmbedding()
     
     doc_or_node = is_doc(docs[0])
 
