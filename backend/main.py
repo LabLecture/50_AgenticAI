@@ -5,15 +5,9 @@ from pydantic import BaseModel
 from llama_index.core import VectorStoreIndex, StorageContext
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.llms.ollama import Ollama
-# from llama_index.embeddings.openai import OpenAIEmbedding
-# from llama_index.llms.openai import OpenAI
-# from llama_index.llms.anthropic import Anthropic
 
-from src.utils import format_docs
-# from src.prompt import prompt
 from src.prompt_llamaIndex import prompt
 from dotenv import load_dotenv
-import os
 
 from llama_index.core.schema import NodeWithScore          
 from llama_index.core.postprocessor.types import BaseNodePostprocessor
@@ -31,28 +25,10 @@ from typing import Optional
 load_dotenv()
 app = FastAPI()
 
-# LLM
-# llm = OpenAI(
-#     model_name="gpt-3.5-turbo-instruct",
-#     # model_name="gpt-4o",  
-#     # temperature=0.2,
-#     max_tokens=512,
-#     streaming=True
-# )
-# llm = ChatOllama(model="mistral:latest")
-# llm = ChatOllama(model="mistral:latest", base_url="http://ollama_dev:11434")
-# llm = ChatOllama(model="mistral:latest", base_url=os.getenv("OLLAMA_BASE_URL"))
-# llm = Ollama(model="mistral:latest", temperature=0.1, request_timeout=360000)
-# llm = Ollama(model="mistral:latest", base_url="http://192.168.1.209:11435", temperature=0.1, request_timeout=360000)
 llm = Ollama(model="mistral:latest", base_url="http://192.168.1.203:11435", temperature=0.1, request_timeout=360000)
-# llm = Ollama(model="mistral:latest", base_url=os.getenv("OLLAMA_BASE_URL"))
-# llm = Ollama(model="llama-3.2-Korean-Bllossom-3B:latest", base_url="http://192.168.1.209:11435", temperature=0.1, request_timeout=360000)     # 건영 10/7 수정
-# llm = AnthropicLLM(model="claude-2.1")
 
-# embed_model = OpenAIEmbedding()
 # HuggingFaceEmbeddings 초기화
 embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")        
-# print(" main.py ---------------> 1. embed_model ", embed_model)
 
 
 # Vector Store
@@ -64,12 +40,12 @@ vector_store = PGVectorStore.from_params(
     user        = "aitheuser1",
     schema_name = "public",
     table_name  = "tmp_chatbot",
-    embed_dim   = 384,     # embed_model에 따라 dimention 변경
+    embed_dim   = 384,                          # embed_model에 따라 dimention 변경
 )
 
 index = VectorStoreIndex.from_vector_store(vector_store=vector_store)  
 
-class CustomPostprocessor(BaseNodePostprocessor):       # 주원9/27 https://docs.llamaindex.ai/en/stable/module_guides/querying/node_postprocessors/
+class CustomPostprocessor(BaseNodePostprocessor):       
     def _postprocess_nodes(
         self, nodes: List[NodeWithScore], query_bundle: Optional[QueryBundle]
     ) -> List[NodeWithScore]:
@@ -87,9 +63,6 @@ class CustomPostprocessor(BaseNodePostprocessor):       # 주원9/27 https://doc
 custom_postprocessor = CustomPostprocessor()
 node_postprocessors = [custom_postprocessor]
 node_postprocessors.append(MetadataReplacementPostProcessor(target_metadata_key="window"))
-
-# 검색을 위한 retriever 생성
-# retriever = index.as_retriever(similarity_top_k=3)
 
 origins = [
     "http://localhost",
@@ -146,13 +119,8 @@ async def chat(request: Request):
     try:
         body = await request.json()
         query = body["query"]
-        print("query ", query)
 
-        print("query_engine ", query_engine)
         answer = query_engine.query(query)
-        print("answer ", answer)
-
-
         # answer = rag_chain.invoke(query.question).strip()
         return {"answer": answer}
     except Exception as e:

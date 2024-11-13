@@ -153,7 +153,6 @@ def create_index(docs, schema_name="public", table_name="tmp"):
 if __name__ == "__main__":
     try:
         file_path = Path("../data").resolve()
-        # connection_string = os.environ["POSTGRESQL_CONNECTION_STRING"]
         docs = load_files(file_path)
         nodes = split(docs)
         index = create_index(nodes, schema_name="public", table_name="tmp_chatbot")
