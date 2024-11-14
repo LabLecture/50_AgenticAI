@@ -24,6 +24,7 @@ from datetime import datetime
 load_dotenv(verbose=True)
 
 class ExcelReader:
+    """엑셀 파일을 읽어서 Document 객체로 변환하는 클래스"""
     def __init__(self):
         pass
 
@@ -48,6 +49,7 @@ class ExcelReader:
             }
             if extra_info:
                 metadata.update(extra_info)
+            # 문서 내용 생성 및 Document 객체로 변환
             content = f"{self.handle_nan(row['plaintiff'])} {self.handle_nan(row['defendant'])} {self.handle_nan(row['another'])} {self.handle_nan(row['money'])} {self.handle_nan(row['unit'])} {self.handle_nan(row['etc'])} {self.handle_nan(row['text'])}"
             doc = Document(text=content.strip(), metadata=metadata)
             docs.append(doc)
@@ -81,19 +83,19 @@ def load_files(input_dir):
     print(f"Found files: {[f.name for f in file_paths]}")
     
     parser = LlamaParse(
-        api_key="llx-JItT6ZbUs6c05fS0nNr3luAD13gxvfPouCrnwmNbZlv2nblg",
-        result_type="markdown",  # "markdown" and "text" are available
+        api_key="llx-JItT6ZbUs6c05fS0nNr3luAD13gxvfPouCrnwmNbZlv2nblg", # llama_index
+        result_type="markdown",                     # "markdown" and "text" are available
         verbose=True,
     )
         
     excel_reader = ExcelReader()
-    file_extractor = {              # 구동되고 나면 주석 테스트
+    file_extractor = {              
         ".pdf": parser,
         ".xlsx": excel_reader,
         ".xls": excel_reader
     }
     reader = SimpleDirectoryReader(
-        input_files=[str(p) for p in file_paths],  # Path 객체를 문자열로 변환
+        input_files=[str(p) for p in file_paths],   # Path 객체를 문자열로 변환
         file_extractor=file_extractor
     )
     docs = reader.load_data()
@@ -101,7 +103,7 @@ def load_files(input_dir):
     return docs  
 
 def split(docs):
-    
+    """문서를 일정 크기의 청크로 분할"""
     indexing = SentenceSplitter(chunk_size=512, chunk_overlap=0)        
     nodes = indexing.get_nodes_from_documents(docs)
     return nodes
@@ -114,7 +116,8 @@ def is_doc(obj):
     return None
 
 def create_index(docs, schema_name="public", table_name="tmp"):
-    vector_store = PGVectorStore.from_params(
+    """PostgreSQL 벡터 저장소 생성 및 문서 인덱싱"""
+    vector_store = PGVectorStore.from_params(   # PostgreSQL 벡터 저장소 설정
         database    = "skku",
         host        = "192.168.1.239",
         password    = "aithepwd8#",
@@ -134,7 +137,7 @@ def create_index(docs, schema_name="public", table_name="tmp"):
     if doc_or_node is None:
         raise ValueError()
 
-    # 디버깅 결과 밑의 VectorStoreIndex 부분이 실행되서 Index가 리턴될 때 테이블이 추가됨..
+    # 문서 유형에 따른 인덱스 생성
     try:
         if doc_or_node:
             index = VectorStoreIndex.from_documents(docs,   # vector_index  pdf 파일 대상.
@@ -158,8 +161,10 @@ if __name__ == "__main__":
         index = create_index(nodes, schema_name="public", table_name="tmp_chatbot")
         
         if index is not None:
-            index.storage_context.persist()             # 벡터 스토어에 데이터 저장
+            index.storage_context.persist()             # 벡터 스토어에 메모리에 유지
             print("Embedding Postgre Success")
             
     except Exception as e:
         print("Embedding Postgre create_vector_store Exception:", str(e))
+
+     
