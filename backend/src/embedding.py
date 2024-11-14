@@ -6,7 +6,6 @@ from llama_index.core import SimpleDirectoryReader, VectorStoreIndex, StorageCon
 
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.core import StorageContext
-from llama_index.core import ServiceContext
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.core.node_parser import LangchainNodeParser
 from langchain.text_splitter import RecursiveCharacterTextSplitter
