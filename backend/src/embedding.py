@@ -53,19 +53,6 @@ if __name__ == "__main__":
     # LangchainNodeParser 생성
     node_parser = LangchainNodeParser(text_splitter)
 
-    # ServiceContext 생성
-    # service_context = ServiceContext.from_defaults(
-    #     embed_model=embed_model,
-    #     node_parser=node_parser
-    # )
-    # 전역 설정
-    # set_global_tokenizer(
-    #     TokenTextSplitter(chunk_size=1024, chunk_overlap=20)
-    # )
-    # set_global_service_context(
-    #     embed_model=embed_model,
-    #     node_parser=node_parser
-    # )
     Settings.embed_model = embed_model
     Settings.node_parser = node_parser    
 
