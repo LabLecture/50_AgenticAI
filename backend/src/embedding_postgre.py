@@ -75,7 +75,7 @@ def load_files(input_dir):
     # 디렉토리 내의 모든 파일 경로를 리스트로 수집
     file_paths = []
     for ext in [".pdf", ".xlsx", ".xls"]:  # 처리하고자 하는 파일 확장자
-        file_paths.extend(list(input_dir.glob(f"*{ext}")))
+        file_paths.extend(list(input_dir.glob(f"*{ext}")))  # glob 잡아냄.
     
     if not file_paths:
         raise ValueError(f"No supported files found in {input_dir}")
@@ -94,7 +94,7 @@ def load_files(input_dir):
         ".xlsx": excel_reader,
         ".xls": excel_reader
     }
-    reader = SimpleDirectoryReader(
+    reader = SimpleDirectoryReader(                 # 다양한 형식 문서 읽기
         input_files=[str(p) for p in file_paths],   # Path 객체를 문자열로 변환
         file_extractor=file_extractor
     )
@@ -105,7 +105,7 @@ def load_files(input_dir):
 def split(docs):
     """문서를 일정 크기의 청크로 분할"""
     indexing = SentenceSplitter(chunk_size=512, chunk_overlap=0)        
-    nodes = indexing.get_nodes_from_documents(docs)
+    nodes = indexing.get_nodes_from_documents(docs)                 # Document 객체들을 TextNode 객체로 변환하며 분할
     return nodes
 
 def is_doc(obj):
@@ -128,6 +128,7 @@ def create_index(docs, schema_name="public", table_name="tmp"):
         embed_dim   = 384,
     )
     
+    # StorageContext는 벡터 저장소의 설정과 상태를 관리 : 벡터 저장소 초기화, 인덱스 설정, 메타데이터 관리, 저장소 연결 관리
     storage_context = StorageContext.from_defaults(vector_store=vector_store)
     embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")
     # embed_model = OpenAIEmbedding()
@@ -156,9 +157,10 @@ def create_index(docs, schema_name="public", table_name="tmp"):
 if __name__ == "__main__":
     try:
         file_path = Path("../data").resolve()
-        docs = load_files(file_path)
-        nodes = split(docs)
-        index = create_index(nodes, schema_name="public", table_name="tmp_chatbot")
+        docs = load_files(file_path)            # file을 parsing 한 docs로 변환
+        nodes = split(docs)                     # parsing 한 docs를 split
+        index = create_index(nodes, schema_name="public", table_name="tmp_chatbot") 
+        # Vector store 에 저장(indexing)
         
         if index is not None:
             index.storage_context.persist()             # 벡터 스토어에 메모리에 유지
