@@ -23,8 +23,10 @@ app = FastAPI()
 #     streaming=True
 # )
 # llm = ChatOllama(model="mistral:latest")
-# llm = ChatOllama(model="mistral:latest", base_url="http://ollama_dev:11434")
-llm = ChatOllama(model="mistral:latest", base_url=os.getenv("OLLAMA_BASE_URL"))
+llm = ChatOllama(model="mistral:latest", base_url="http://ollama_dev:11434", temperature=0.1, request_timeout=360000)
+# llm = ChatOllama(model="mistral:latest", base_url="http://localhost:11434")
+# llm = ChatOllama(model="mistral:latest", base_url=os.getenv("ollama_dev"))   # OK
+# llm = ChatOllama(model="mistral:latest", base_url="http://192.168.1.203:11435", temperature=0.1, request_timeout=360000)
 
 # embeddings_model = OpenAIEmbeddings()
 # HuggingFaceEmbeddings 초기화

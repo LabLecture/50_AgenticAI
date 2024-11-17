@@ -3,7 +3,7 @@ import shutil
 from pathlib import Path
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings
+# from langchain_openai import OpenAIEmbeddings
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from dotenv import load_dotenv
@@ -21,7 +21,12 @@ if __name__ == "__main__":
     
     # embeddings_model = OpenAIEmbeddings()
     # HuggingFaceEmbeddings 초기화
-    embeddings_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")        
+    # 임베딩 모델 설정
+    embedding_model_id = "sentence-transformers/all-MiniLM-L6-v2"
+    embeddings_model = HuggingFaceEmbeddings(
+        model_name=embedding_model_id,
+        model_kwargs={'device': 'cpu'}
+    )      
 
     for file in file_path.glob("*.pdf"):
         loader = PyPDFLoader(str(file))

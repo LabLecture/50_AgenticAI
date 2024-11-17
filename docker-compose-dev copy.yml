@@ -1,5 +1,6 @@
 version: '3.8'
 services:  
+
   backend_dev:
     build:
       context: ./backend
@@ -8,10 +9,10 @@ services:
       - ./backend/.env
     ports:
       - "8000:8000"
-    networks:
-      - app_network
-    environment:
-      OLLAMA_BASE_URL: http://ollama_dev:11434
+    # networks:
+    #   - app_network
+    # environment:
+    #   OLLAMA_BASE_URL: http://ollama_dev:11434
   
   react_dev:
     build:
@@ -21,16 +22,12 @@ services:
       - ./frontend/.env.development
     ports:
       - "3000:3000"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
     environment:
-      REACT_APP_URL: http://localhost:3000
-      REACT_APP_API_URL: http://localhost:8000
+      REACT_APP_URL: http://localhost:3000  
       DISABLE_ESLINT_PLUGIN: "true"
       CI: "false"
-    networks:
-      - app_network
+    # networks:
+    #   - app_network
 
   ollama_dev:
     build:
@@ -38,12 +35,14 @@ services:
       dockerfile: Dockerfile
     ports:
       - "11434:11434"
+    environment:
+      OLLAMA_URL: http://localhost:11434  
     volumes:
       - ./ollama/models:/models
 
-networks:
-  app_network:
-    driver: bridge      
+# networks:
+#   app_network:
+#     driver: bridge      
 
 # docker-compose -f docker-compose-dev.yml up -d --build      
 # docker-compose -f docker-compose-dev.yml up --build      
