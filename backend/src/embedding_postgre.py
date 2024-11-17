@@ -4,9 +4,6 @@ from llama_index.core import SimpleDirectoryReader, VectorStoreIndex, StorageCon
 
 from llama_index.core import StorageContext
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-# from llama_index.embeddings.openai import OpenAIEmbedding
-
-# import chromadb
 from dotenv import load_dotenv
 
 from llama_index.core.schema import TextNode, Document      # postgre vector store
@@ -119,7 +116,7 @@ def create_index(docs, schema_name="public", table_name="tmp"):
     """PostgreSQL 벡터 저장소 생성 및 문서 인덱싱"""
     vector_store = PGVectorStore.from_params(   # PostgreSQL 벡터 저장소 설정
         database    = "skku",
-        host        = "192.168.1.239",
+        host        = "192.168.1.204",
         password    = "aithepwd8#",
         port        = "55432",
         user        = "aitheuser1",

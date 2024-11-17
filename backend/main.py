@@ -34,7 +34,7 @@ embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-
 # Vector Store
 vector_store = PGVectorStore.from_params(
     database    = "skku",
-    host        = "192.168.1.239",
+    host        = "192.168.1.204",
     password    = "aithepwd8#",
     port        = "55432",
     user        = "aitheuser1",
@@ -43,7 +43,7 @@ vector_store = PGVectorStore.from_params(
     embed_dim   = 384,                          # embed_model에 따라 dimention 변경
 )
 
-index = VectorStoreIndex.from_vector_store(vector_store=vector_store)  
+# index = VectorStoreIndex.from_vector_store(vector_store=vector_store)  
 
 class CustomPostprocessor(BaseNodePostprocessor):       
     def _postprocess_nodes(
