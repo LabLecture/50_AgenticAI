@@ -35,8 +35,12 @@ embeddings_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-M
 
 # Vector Store
 # db = Chroma(persist_directory="./vector_store", embedding_function=OpenAIEmbeddings())
-db = Chroma(persist_directory="./vector_store", embedding_function=embeddings_model)
-retriever = db.as_retriever(search_type="similarity")
+try:
+    db = Chroma(persist_directory="./vector_store", embedding_function=embeddings_model)
+    retriever = db.as_retriever(search_type="similarity")
+except Exception as e:
+    print(f"Error initializing vector store: {str(e)}")
+    raise
 
 origins = [
     "http://localhost",
@@ -70,5 +74,5 @@ async def chat(query: UserQuery):
         answer = rag_chain.invoke(query.question).strip()
         return {"answer": answer}
     except Exception as e:
-        print(e)
-    
+        print(f"Error in chat endpoint: {str(e)}")
+        return {"error": str(e)}, 500

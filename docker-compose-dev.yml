@@ -8,10 +8,16 @@ services:
       - ./backend/.env
     ports:
       - "8000:8000"
+    volumes:
+      - ./backend:/app                    # 소스 코드 마운트
+      - ./vector_store:/app/vector_store  # 벡터 스토어 마운트
     networks:
       - app_network
     environment:
       OLLAMA_BASE_URL: http://ollama_dev:11434
+    # 컨테이너가 계속 실행되도록 설정
+    tty: true
+    stdin_open: true
   
   react_dev:
     build:
@@ -40,10 +46,11 @@ services:
       - "11434:11434"
     volumes:
       - ./ollama/models:/models
+    networks:
+      - app_network             # 이 부분이 중요합니다
 
 networks:
   app_network:
     driver: bridge      
 
-# docker-compose -f docker-compose-dev.yml up -d --build      
 # docker-compose -f docker-compose-dev.yml up --build      

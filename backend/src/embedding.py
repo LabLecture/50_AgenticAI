@@ -4,7 +4,8 @@ from pathlib import Path
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 # from langchain_openai import OpenAIEmbeddings
-from langchain_community.embeddings import HuggingFaceEmbeddings
+# from langchain_community.embeddings import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from dotenv import load_dotenv
 
@@ -45,6 +46,8 @@ if __name__ == "__main__":
             embeddings_model,
             persist_directory=directory
         )
+    print(f"벡터 스토어 생성완료 : {directory}")
+
 
     # docs = vector_store.similarity_search("소비자 물가 전망 알려줘")
 
