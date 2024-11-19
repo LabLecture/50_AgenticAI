@@ -16,9 +16,9 @@ if __name__ == "__main__":
     file_path = Path("../data")
     
     # 기존 벡터 스토어 삭제
-    if os.path.exists(directory):
-        shutil.rmtree(directory)
-        print(f"기존 벡터 스토어 삭제됨: {directory}")
+    # if os.path.exists(directory):
+    #     shutil.rmtree(directory)
+    #     print(f"기존 벡터 스토어 삭제됨: {directory}")
     
     # embeddings_model = OpenAIEmbeddings()
     # HuggingFaceEmbeddings 초기화
