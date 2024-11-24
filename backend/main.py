@@ -44,7 +44,7 @@ llm = Ollama(model="mistral:latest", base_url="http://192.168.1.209:11435", temp
 # embeddings_model = OpenAIEmbeddings()
 # HuggingFaceEmbeddings 초기화
 embeddings_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")        
-print(" main.py ---------------> 1. embeddings_model ", embeddings_model)
+# print(" main.py ---------------> 1. embeddings_model ", embeddings_model)
 
 # Vector Store
 # db = Chroma(persist_directory="./vector_store", embedding_function=OpenAIEmbeddings())
@@ -115,11 +115,11 @@ async def chat(request: Request):
     try:
         body = await request.json()
         query = body["query"]
-        print("query ", query)
+        # print("query ", query)
 
-        print("query_engine ", query_engine)
+        # print("query_engine ", query_engine)
         answer = query_engine.query(query)
-        print("answer ", answer)
+        # print("answer ", answer)
 
 
         # answer = rag_chain.invoke(query.question).strip()
