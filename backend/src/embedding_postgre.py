@@ -156,6 +156,7 @@ if __name__ == "__main__":
         file_path = Path("../data").resolve()
         docs = load_files(file_path)            # file을 parsing 한 docs로 변환
         nodes = split(docs)                     # parsing 한 docs를 split
+        print("-----> nodes = split(docs) OK")
         index = create_index(nodes, schema_name="public", table_name="tmp_chatbot_00") 
         # Vector store 에 저장(indexing)
         
