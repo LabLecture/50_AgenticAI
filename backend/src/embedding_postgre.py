@@ -115,11 +115,11 @@ def is_doc(obj):
 def create_index(docs, schema_name="public", table_name="tmp"):
     """PostgreSQL 벡터 저장소 생성 및 문서 인덱싱"""
     vector_store = PGVectorStore.from_params(   # PostgreSQL 벡터 저장소 설정
-        database    = "skku",
-        host        = "192.168.1.204",
-        password    = "aithepwd8#",
-        port        = "55432",
-        user        = "aitheuser1",
+        database    = "chatbot",
+        host        = "61.108.166.16",
+        password    = "chatbot01",
+        port        = "5432",
+        user        = "chatbot01",
         schema_name = schema_name,
         table_name  = table_name,
         embed_dim   = 384,
@@ -156,7 +156,7 @@ if __name__ == "__main__":
         file_path = Path("../data").resolve()
         docs = load_files(file_path)            # file을 parsing 한 docs로 변환
         nodes = split(docs)                     # parsing 한 docs를 split
-        index = create_index(nodes, schema_name="public", table_name="tmp_chatbot") 
+        index = create_index(nodes, schema_name="public", table_name="tmp_chatbot_00") 
         # Vector store 에 저장(indexing)
         
         if index is not None:
