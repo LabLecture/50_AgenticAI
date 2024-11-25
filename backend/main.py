@@ -26,7 +26,8 @@ load_dotenv()
 app = FastAPI()
 
 # llm = Ollama(model="mistral:latest", base_url="http://192.168.1.203:11435", temperature=0.1, request_timeout=360000)
-llm = Ollama(model="mistral:latest", temperature=0.1, request_timeout=360000)
+# llm = Ollama(model="mistral:latest", temperature=0.1, request_timeout=360000)
+llm = Ollama(model="mistral:latest", base_url="http://ollama_dev:11434", request_timeout=360000)
 
 # HuggingFaceEmbeddings 초기화
 embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-L6-v2")        

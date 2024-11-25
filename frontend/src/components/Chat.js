@@ -51,7 +51,7 @@ const Chat = () => {
                 ...prev,
                 {
                   direction: "incoming",
-                  content: response.data.answer.response,
+                  content: response.data.answer,
                   sentTime: new Date(),
                   sender: "ai",
                 },
