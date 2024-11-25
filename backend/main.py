@@ -119,11 +119,19 @@ async def chat(request: Request):
     """chat endpoint"""
     try:
         body = await request.json()
-        query = body["query"]
-
-        answer = query_engine.query(query)
+        print("body ----> ", body)
+        query = body["question"]
+        print("query ----> ", query)
+        response = query_engine.query(query)
+        answer = response.response  # 여기를 수정
+        # answer = query_engine.query(query)
         # answer = rag_chain.invoke(query.question).strip()
+        print("answer ----> ", answer)
         return {"answer": answer}
     except Exception as e:
-        print(e)
+        print("Error:", str(e))
         return {"answer": str(e)}
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run("main:app", host="0.0.0.0", port=8031, reload=True)
