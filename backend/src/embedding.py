@@ -3,7 +3,6 @@ import shutil
 from pathlib import Path
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
-from langchain_openai import OpenAIEmbeddings
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_chroma import Chroma
 from dotenv import load_dotenv
@@ -14,13 +13,6 @@ if __name__ == "__main__":
     directory = '../vector_store'
     file_path = Path("../data")
     
-    # 기존 벡터 스토어 삭제
-    if os.path.exists(directory):
-        shutil.rmtree(directory)
-        print(f"기존 벡터 스토어 삭제됨: {directory}")
-    
-    # embeddings_model = OpenAIEmbeddings()
-    # HuggingFaceEmbeddings 초기화
     embeddings_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")        
 
     for file in file_path.glob("*.pdf"):
