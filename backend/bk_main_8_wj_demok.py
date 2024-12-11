@@ -85,18 +85,18 @@ postrgre_db = PostgreSqlDB()
 
 # LLM
 # llm = OpenAI(
-# llm = ChatOpenAI(
-#     # model_name="gpt-3.5-turbo-instruct",
-#     # model_name="gpt-4",       # 'This is a chat model and not supported in the v1/completions endpoint. Did you mean to use v1/chat/completions?
-#     # model_name="gpt-4o-mini",   # 상동
-#     model="gpt-4o",   #
-#     temperature=0.2,
-#     # max_tokens=512,
-#     max_tokens=256,
-#     streaming=True
-# )
+llm = ChatOpenAI(
+    # model_name="gpt-3.5-turbo-instruct",
+    # model_name="gpt-4",       # 'This is a chat model and not supported in the v1/completions endpoint. Did you mean to use v1/chat/completions?
+    # model_name="gpt-4o-mini",   # 상동
+    model="gpt-4o",   #
+    temperature=0.2,
+    # max_tokens=512,
+    max_tokens=256,
+    streaming=True
+)
 
-llm = ChatOllama(model="llama-3-Korean-Bllossom-8B:latest", base_url="http://192.168.1.209:11435", temperature=0.1, request_timeout=360000)     # 건영 10/7 수정
+# llm = ChatOllama(model="llama-3-Korean-Bllossom-8B:latest", base_url="http://192.168.1.209:11435", temperature=0.1, request_timeout=360000)     # 건영 10/7 수정
 
 # loader = UnstructuredExcelLoader("./backend/data/웅진씽크백FAQ_PGVector_Data.xlsx", mode="elements")
 # docs = loader.load()

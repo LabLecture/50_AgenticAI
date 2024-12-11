@@ -79,27 +79,6 @@ class ConversationState:
         if history:
             conv["history"].extend(history)
 
-    # 대출연장 단계 전환을 위한 함수 c_16
-    def update_loan_step(self, conv_id: str, current_response: str):
-        """대출 상담 단계를 업데이트합니다."""
-        conv = self.get_conversation(conv_id)
-        
-        # 현재 응답 내용을 바탕으로 다음 단계 결정
-        if "계좌번호" in current_response or "대출상품명" in current_response:
-            conv["current_step"] = "LOAN_INFO"
-        elif "연체 기록" in current_response:
-            conv["current_step"] = "ELIGIBILITY"
-        elif "신용 스코어" in current_response or "이자납입" in current_response:
-            conv["current_step"] = "ELIGIBILITY"
-        elif "조건" in current_response and "이자율" in current_response:
-            conv["current_step"] = "CONDITIONS"
-        elif "동의" in current_response:
-            conv["current_step"] = "AGREEMENT"
-        elif "서류" in current_response:
-            conv["current_step"] = "LEGAL_PROCESS"
-        
-        return conv["current_step"]            
-
 load_dotenv()
 app = FastAPI()
 conversation_state = ConversationState()
