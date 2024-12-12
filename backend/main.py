@@ -82,7 +82,6 @@ load_dotenv()
 app = FastAPI()
 conversation_state = ConversationState()
 postrgre_db = PostgreSqlDB()
-
 # LLM
 # llm = OpenAI(
 # llm = ChatOpenAI(

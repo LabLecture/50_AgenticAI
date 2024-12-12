@@ -1,16 +1,23 @@
 import os
 import psycopg
 from psycopg.rows import dict_row
+from urllib.parse import urlparse
 
 class PostgreSqlDB:
     def __init__(self):
-        self.db_config = {
-            "host": os.environ["DBHOST"],
-            "dbname": os.environ["DBNAME"],
-            "user": os.environ["DBUSER"],
-            "password": os.environ["DBPWD"],
-            "port": int(os.environ["DBPORT"])
-        }
+        # print("os.environ", os.environ)
+        
+        # connection string 파싱
+        # db_url = urlparse(os.environ["POSTGRESQL_CONNECTION_STRING"])
+        
+        # self.db_config = {
+        #     "host": db_url.hostname,
+        #     "dbname": db_url.path[1:],  # 첫 번째 '/' 제거
+        #     "user": db_url.username,
+        #     "password": db_url.password,
+        #     "port": db_url.port
+        # }
+        self.connection_string = os.environ["POSTGRESQL_CONNECTION_STRING"]
         
     def execute(self, query, params=None):
         """
