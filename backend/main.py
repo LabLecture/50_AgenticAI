@@ -129,35 +129,34 @@ app.add_middleware(
 
     
 @tool
-def get_user_class_info( # default 값에 따라 받아오는 값이 달라짐 (ex) 6, 6학년 이런게 달라짐..
+def get_user_class_info(
     user_name:Annotated[str, "학생(자녀)이름, default value is **샘플스**"],
     user_school:Annotated[str, "학교, default value is **샘플학교**"],
     user_grade:Annotated[int, "학년, default value is **7**"]
-    # ) -> dict:
-    ) -> str:
-    """ **학생(자녀)정보**를 조회합니다.
-    추가적인 지시사항:
-    - 유저 이름이나 학교명이 구체적으로 명시되지 않은 경우(예: '제 딸', '초등학교' 등), 해당 정보는 수집하지 마십시오.
-    - 구체적인 이름과 학교명이 제공된 경우에만 user_name과 user_school을 설정하십시오.
-    - 일반적인 명칭이 입력된 경우 "우선 자녀분 아이디나 학교/학년/이름을 말씀해 주실 수 있나요? "라고 응답하십시오.
+) -> str:
+    """학생(자녀)의 정보를 조회하는 함수입니다.
+    
+    Args:
+        user_name (str): 학생(자녀)이름
+        user_school (str): 학교
+        user_grade (int): 학년
+        
+    Returns:
+        str: 학생 정보 조회 결과
     """
-    # Parameters for the request
-
+    if not user_name or not user_school:
+        return "구체적인 학생 정보가 필요합니다."
+    
     class_datas = postrgre_db.fetch_all(db_sql.select_class_info, (user_name, user_school, user_grade))
-
-    if class_datas is None:
-        raise ValueError('해당하는 자녀정보가 없습니다. 다시 확인하고 입력해주세요.')
-        return f'''
-            안녕하세요 웅진씽크빅 챗봇입니다.
-            자녀분 수업진도를 체크하려고 하시는 군요? 우선 자녀분 아이디나 학교/학년/이름을 말씀해 주실 수 있나요?
-        '''
     
-    return f'''
-    학생(자녀)이름:{user_name}
-    학교:{user_school}
-    학년:{user_grade}
-    '''
+    if not class_datas:
+        return "해당하는 자녀정보가 없습니다."
     
+    return f"""
+    학생(자녀)이름: {user_name}
+    학교: {user_school}
+    학년: {user_grade}
+    """
     
 @tool
 def get_user_class_progress_info(
@@ -210,16 +209,15 @@ human = '''
 memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
 
 agent_user = create_structured_chat_agent(
-        llm, 
-        [get_user_class_info],
-        ChatPromptTemplate.from_messages(
-            [
-                ("system", agent_prompt.search_prompt_user), 
-                MessagesPlaceholder("chat_history", optional=True),
-                ("human", human)
-            ]
-        )
-    )
+    llm, 
+    [get_user_class_info],
+    ChatPromptTemplate.from_messages([
+        ("system", agent_prompt.search_prompt_user),
+        MessagesPlaceholder("chat_history", optional=True),
+        ("human", "{input}"),
+        ("human", "{agent_scratchpad}")  # agent_scratchpad를 별도의 메시지로 추가
+    ])
+)
 
 
 agent_user_executor = AgentExecutor(
@@ -228,29 +226,32 @@ agent_user_executor = AgentExecutor(
     # verbose=True,
     handle_parsing_errors=True,
     memory=memory,
-    max_iterations=5,
+    max_iterations=1,
 )
 
 agent_user_class = create_structured_chat_agent(
-        llm, 
-        [get_user_class_info, get_user_class_progress_info],
-        ChatPromptTemplate.from_messages(
-            [
-                ("system", agent_prompt.search_prompt_user_class), 
-                MessagesPlaceholder("chat_history", optional=True),
-                ("human", human)
-            ]
-        )
-    )
+    llm, 
+    [get_user_class_info, get_user_class_progress_info],
+    ChatPromptTemplate.from_messages([
+        ("system", agent_prompt.search_prompt_user_class),
+        MessagesPlaceholder("chat_history", optional=True),
+        ("human", "{input}"),
+        ("human", "{agent_scratchpad}") 
+    ])
+)
 
+def handle_user_class_parsing_error(error):
+    return {
+        "output": "안녕하세요 웅진씽크빅 챗봇입니다. 자녀분 수업진도를 체크하려고 하시는군요? 우선 자녀분 아이디나 학교/학년/이름을 말씀해 주실 수 있나요?"
+    }
 
 agent_user_class_executor = AgentExecutor(
     agent=agent_user_class,
     tools=[get_user_class_info, get_user_class_progress_info],
-    # verbose=True,
-    handle_parsing_errors=True,
     memory=memory,
-    max_iterations=5,
+    max_iterations=1,
+    handle_parsing_errors=True,
+    handle_parsing_errors_with=handle_user_class_parsing_error
 )
 
 agent_progress = create_structured_chat_agent(
@@ -260,7 +261,8 @@ agent_progress = create_structured_chat_agent(
             [
                 ("system", agent_prompt.search_class_progress_prompt), 
                 MessagesPlaceholder("chat_history", optional=True),
-                ("human", human)
+                ("human", "{input}"),
+                ("human", "{agent_scratchpad}") 
             ]
         )
     )
@@ -271,7 +273,7 @@ agent_progress_executor = AgentExecutor(
     # verbose=True,
     handle_parsing_errors=True,
     memory=memory,
-    max_iterations=5,
+    max_iterations=1,
 )
 
 ##########################
@@ -326,14 +328,16 @@ async def chat(query: UserQuery):
         # test_data = postrgre_db.fetch_all(db_sql.select_test, ("이웅진",))
         conv = conversation_state.get_conversation(query.conversation_id)
         # history = conversation_state.get_history_string(query.conversation_id)    # 이전 대화 내용 가져오기
-        print(" -------------------------> query : ", query)
         print(" conv : ", conv)
         previous_intent = conv["intent"]        # 이전 의도 저장
         previous_step = conv["current_step"]    # 이전 단계 저장
 
         # 1. 의도 및 chain종류(RAG/PROMPT/NO_LLM/DB) 분류 #####################################################
         if not conv["intent"]:                  # 의도 분석 (새로운 대화이거나 분류 불가능한 이전 상태인 경우)
+            print(" -------------------------> query : ", query)
+            
             intent = chain_intent["INTENT"].invoke({"question": query.question}).strip()
+            print(" -------------------------> 0 intent : ", intent)
             # intent = intent_chain.invoke({"question": query.question}).strip() # 이렇게 그냥 프롬프트를 맞춰서 보내면 intent를 리턴해줌;;
             chain_type = "PROMPT"               # default는 PROMPT 이며 RAG나 DB만 처리함.
             dict_list = [chain_intent, chains_prompt, str_LEARNING_SUPPORT, answers_nollm]
@@ -366,6 +370,7 @@ async def chat(query: UserQuery):
                     conv["intent"] = intent
                 else:
                     intent = "None"  
+            print(" -------------------------> 1 : ")
             
             # if not any(intent in d for d in dict_list):
             # all_keys = set(chain_intent.keys()) | set(chains_prompt.keys()) | set(str_LEARNING_SUPPORT.keys()) | set(answers_nollm.keys())
@@ -387,6 +392,8 @@ async def chat(query: UserQuery):
 
             conv["intent"] = intent                     # 정상적인 의도 분류된 경우
             ######################################################## End
+        
+        print(" -------------------------> 2 chain_type : ", chain_type)
 
 
         
@@ -398,6 +405,8 @@ async def chat(query: UserQuery):
                 chat_history = memory.buffer_as_messages
                 if conv["current_step"] == None :
                     conv["current_step"] = "FINAL"
+                    print(" -------------------------> 2.1 : ", conv["current_step"])
+
                     response = agent_user_class_executor.invoke({
                         "input": query.question,
                         "chat_history": chat_history,
@@ -416,7 +425,9 @@ async def chat(query: UserQuery):
                     "context": conv["context"]              # 현재 컨텍스트 상태도 반환
                 }
         # 2. 답변 생성 #########################################################
+        print(" -------------------------> 3 : ")
         if chain_type == "PROMPT":                      # chain type : PROMPT/RAG/NO_LLM/DB (NO_LLM 빼곤 다 prompt정의됨.)
+            print(" -------------------------> 4 : ")
             chain = chains_prompt[conv["intent"]]       # 현재 의도에 따른 프롬프트 체인 선택
             context = {                                 # 프롬프트에 필요한 컨텍스트 구성
                 "question": query.question,
@@ -424,6 +435,8 @@ async def chat(query: UserQuery):
                 "context": json.dumps(conv["context"]),
                 # "history": history
             }  
+            print(" -------------------------> 5 : ")
+
             answer = chain.invoke(context).strip()  # 응답 생성              
         elif chain_type == "NO_LLM":
             answer = answer.strip()
