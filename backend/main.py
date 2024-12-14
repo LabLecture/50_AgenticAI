@@ -57,6 +57,7 @@ class ConversationState:
             "current_step": None,
             "context": {},
             "next_DB": False,    # 고객 답변을 받아 llm 전 DB처리를 위함.
+            "is_reset": False,
             "infos": {},         # 학생 정보 등 정보 저장을 위함
             "history": []
         }
@@ -96,7 +97,7 @@ postrgre_db = PostgreSqlDB()
 #     streaming=True
 # )
 
-llm = ChatOllama(model="llama-3-Korean-Bllossom-8B:latest", base_url="http://192.168.1.209:11435", temperature=0.1, request_timeout=360000)     # 건영 10/7 수정
+llm = ChatOllama(model="mistral:latest", base_url="http://192.168.1.209:11435", temperature=0.1, request_timeout=360000)     # 건영 10/7 수정
 # llm = AnthropicLLM(model="claude-2.1")
 
 

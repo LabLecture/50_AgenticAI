@@ -43,8 +43,8 @@ const Chat = () => {
                 },
               ]);
 
-              const response = await axios.post("http://61.108.166.16:8000/chat", {
-                query: textContent,
+              const response = await axios.post("http://localhost:8000/chat", {
+                question: textContent,
                 });
               console.log("-----> response : ", response)  
               setMessages((prev) => [
