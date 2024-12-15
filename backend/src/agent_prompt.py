@@ -19,11 +19,14 @@ Provide only ONE action per $JSON_BLOB, as shown:
 
 Follow this format:
 
-Question: input question to answer
+Question: {input}
 Thought: consider previous and subsequent steps
 Action:
 ```
-$JSON_BLOB
+{{
+"action": $TOOL_NAME,
+"action_input": $INPUT
+}}
 ```
 Observation: action result
 ... (repeat Thought/Action/Observation N times)
@@ -35,9 +38,9 @@ Action:
   "action_input": "Final response to human"
 }}
 
-Begin! Reminder to ALWAYS respond with a valid json blob of a single action. Use tools if necessary. Respond directly if appropriate. Format is Action:```$JSON_BLOB```then Observation
+Begin! Reminder to ALWAYS respond with a valid json blob of a single action. Use tools if necessary. Respond directly if appropriate.
 
-**유저정보를 모두 포함**하여 아래와 같은 [규칙]을 지키면서 [답변예시]로 답변해 주세요. `{{tool_result}}` 결과를 활용해주세요.
+**유저정보를 모두 포함**하여 아래와 같은 [규칙]을 지키면서 [답변예시]로 답변해 주세요.
 
 [규칙]
 1. '제 딸', '우리 딸' 등 일반적인 호칭이 사용된 경우:
@@ -49,9 +52,9 @@ Begin! Reminder to ALWAYS respond with a valid json blob of a single action. Use
 3. 구체적인 정보가 제공된 경우에만 조회를 수행할 것
 
 [답변예시]
-- 자녀이름은 user_name 입니다.
-- 자녀가 재학중인 학교는 user_school 입니다.
-- 자녀의 학년은 user_grade 입니다.
+- 자녀이름은 {user_name} 입니다.
+- 자녀가 재학중인 학교는 {user_school} 입니다.
+- 자녀의 학년은 {user_grade} 입니다.
 
 
 """

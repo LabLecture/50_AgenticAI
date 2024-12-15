@@ -144,6 +144,7 @@ def get_user_class_info(
     Returns:
         str: 학생 정보 조회 결과
     """
+    print(" -------------------------> 2.3 : ", user_name)
     if not user_name or not user_school:
         return "구체적인 학생 정보가 필요합니다."
     
@@ -196,13 +197,13 @@ def explain_class_progress_info(query : str) -> str:
         자녀분 수업진도를 체크하려고 하시는 군요? 우선 자녀분 아이디나 학교/학년/이름을 말씀해 주실 수 있나요?
     '''
     
-human = '''
+human = """
 
 {input}
 
 {agent_scratchpad}
 
-(reminder to respond in a JSON blob no matter what)'''
+(reminder to respond in a JSON blob no matter what)"""
 # 각 system, human 내용 잘 읽어보기 이 내용 자체가 함수임..(프롬프트가 말로하는 코딩이라 생각하면됨)
 
 
@@ -249,9 +250,10 @@ agent_user_class_executor = AgentExecutor(
     agent=agent_user_class,
     tools=[get_user_class_info, get_user_class_progress_info],
     memory=memory,
-    max_iterations=1,
+    max_iterations=5,
     handle_parsing_errors=True,
-    handle_parsing_errors_with=handle_user_class_parsing_error
+    handle_parsing_errors_with=handle_user_class_parsing_error,
+    return_intermediate_steps=True  # 중간 단계 결과 반환
 )
 
 agent_progress = create_structured_chat_agent(
@@ -368,6 +370,7 @@ async def chat(query: UserQuery):
                 elif intent in ["LEARNING_SUPPORT"]:                      # 한번 더 의도를 세분화 해서 파악 (LLM으로 vs 선생님or직원과 다른.. 이렇게 해야될듯..)
                     intent = chain_intent["INTENT_LEARNING_SUPPORT"].invoke(context).strip()  # 세부적인 의도 파악
                     conv["intent"] = intent
+                    print(" -------------------------> 0.2 intent : ", intent)
                 else:
                     intent = "None"  
             print(" -------------------------> 1 : ")
@@ -405,7 +408,7 @@ async def chat(query: UserQuery):
                 chat_history = memory.buffer_as_messages
                 if conv["current_step"] == None :
                     conv["current_step"] = "FINAL"
-                    print(" -------------------------> 2.1 : ", conv["current_step"])
+                    print(" -------------------------> 2.1 : ", query.question)
 
                     response = agent_user_class_executor.invoke({
                         "input": query.question,
