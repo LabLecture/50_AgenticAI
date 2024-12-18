@@ -1,30 +1,25 @@
 import os
 import psycopg
 from psycopg.rows import dict_row
-from urllib.parse import urlparse
 
 class PostgreSqlDB:
     def __init__(self):
-        # print("os.environ", os.environ)
-        
-        # connection string 파싱
-        # db_url = urlparse(os.environ["POSTGRESQL_CONNECTION_STRING"])
-        
         # self.db_config = {
-        #     "host": db_url.hostname,
-        #     "dbname": db_url.path[1:],  # 첫 번째 '/' 제거
-        #     "user": db_url.username,
-        #     "password": db_url.password,
-        #     "port": db_url.port
+        #     "host": os.environ["DBHOST"],
+        #     "dbname": os.environ["DBNAME"],
+        #     "user": os.environ["DBUSER"],
+        #     "password": os.environ["DBPWD"],
+        #     "port": int(os.environ["DBPORT"])
         # }
-        self.connection_string = os.environ["POSTGRESQL_CONNECTION_STRING"]
+        # self.connection_string = os.environ["POSTGRESQL_CONNECTION_STRING"]
+        self.db_config = os.environ["POSTGRESQL_CONNECTION_STRING"]
         
     def execute(self, query, params=None):
         """
         INSERT, UPDATE, DELETE 쿼리를 실행
         """
         try:
-            with psycopg.connect(**self.db_config) as conn:
+            with psycopg.connect(self.db_config) as conn:
                 with conn.cursor() as cursor:
                     cursor.execute(query, params)
                     conn.commit()
@@ -36,7 +31,7 @@ class PostgreSqlDB:
         SELECT 쿼리를 실행 후 모든 결과를 반환.
         """
         try:
-            with psycopg.connect(**self.db_config) as conn:
+            with psycopg.connect(self.db_config) as conn:
                 with conn.cursor(row_factory=dict_row) as cursor:
                     cursor.execute(query, params)
                     return cursor.fetchall()
@@ -49,7 +44,7 @@ class PostgreSqlDB:
         SELECT 쿼리를 실행하고 첫 번째 결과만 반환.(값이 1개인경우 사용)
         """
         try:
-            with psycopg.connect(**self.db_config) as conn:
+            with psycopg.connect(self.db_config) as conn:
                 with conn.cursor(row_factory=dict_row) as cursor:
                     cursor.execute(query, params)
                     return cursor.fetchone()
