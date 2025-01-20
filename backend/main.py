@@ -2,40 +2,22 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough
-from langchain_openai import OpenAI, OpenAIEmbeddings
 from langchain_openai import ChatOpenAI
-# from langchain_community.embeddings import HuggingFaceEmbeddings
-# from langchain_chroma import Chroma
-
-from src.utils import format_docs
 from src.prompt import prompts
 from dotenv import load_dotenv
 
-# from langchain_community.chat_models import ChatOllama
-from langchain_ollama import ChatOllama
-# from langchain_community.document_loaders import UnstructuredExcelLoader
-# from langchain.prompts import ChatPromptTemplate
-import os
 from typing import Optional, Dict
 import json
-import pandas as pd
 
 ##########################
 from langchain_core.tools import tool
-#from langchain.agents import Tool
 from typing import Annotated
 from langchain_core.prompts.chat import ChatPromptTemplate, MessagesPlaceholder
 from langchain.agents import AgentExecutor, create_structured_chat_agent
-from langchain.memory import ConversationBufferMemory, ConversationBufferWindowMemory 
+from langchain.memory import ConversationBufferMemory
 from langchain.globals import set_verbose, set_debug
-from langchain_postgres import PGVector
-from langchain_postgres.vectorstores import PGVector
-# from sqlalchemy import create_engine
-from langchain.schema import Document
 set_verbose(True)
 set_debug(True)
-##########################
 
 from db import PostgreSqlDB
 import db_sql
@@ -87,58 +69,12 @@ conversation_state = ConversationState()
 postrgre_db = PostgreSqlDB()
 
 # LLM
-# llm = OpenAI(
 llm = ChatOpenAI(
-    # model_name="gpt-3.5-turbo-instruct",
     model="gpt-4o",   #
     temperature=0.2,
-    # max_tokens=512,
     max_tokens=256,
     streaming=True
 )
-
-# llm = ChatOllama(model="llama-3-Korean-Bllossom-8B:latest", base_url="http://192.168.1.209:11435", temperature=0.1, request_timeout=360000)     # 건영 10/7 수정
-# llm = ChatOllama(model="mistral-large:latest", base_url="http://192.168.1.209:11435", temperature=0.1, request_timeout=360000)     # 건영 10/7 수정
-# llm = ChatOllama(model="mistral:latest", base_url="http://192.168.1.209:11435", temperature=0.1, request_timeout=360000)     # 건영 10/7 수정
-# llm = ChatOllama(model="lancard/korean-yanolja-eeve:latest", base_url="http://192.168.1.209:11435", temperature=0.1, request_timeout=360000)     # 건영 10/7 수정
-
-
-# import pydantic
-# pydantic.config.ConfigDict(arbitrary_types_allowed=True)
-
-# # 엑셀 데이터를 행 단위로 로드하는 함수
-# def load_excel_data(file_path):
-#     df = pd.read_excel(file_path)
-#     documents = []
-    
-#     for _, row in df.iterrows():
-#         # 각 행의 질문과 답변을 하나의 문서로 생성
-#         doc_content = f"질문: {row['질문']}\n답변: {row['답변']}"
-#         doc = Document(
-#             page_content=doc_content,
-#             metadata={"source": "faq"}
-#         )
-#         documents.append(doc)
-    
-#     return documents
-
-# loader = UnstructuredExcelLoader("./langchain-chatbot/backend/data/웅진씽크백FAQ_PGVector_Data.xlsx", mode="elements")
-# loader = UnstructuredExcelLoader("./backend/data/웅진씽크백FAQ_PGVector_Data.xlsx", mode="elements")
-# loader = UnstructuredExcelLoader("./data/웅진씽크백FAQ_PGVector_Data.xlsx", mode="elements")    # 건영 PC
-# connection_string = os.environ["POSTGRESQL_CONNECTION_VECTORSTORE_STRING"]
-# docs = loader.load()
-# collection_name = "woongjin_faq"
-# # collection_name="graywhale",
-# vector_store = PGVector(
-#     collection_name=collection_name,
-#     embeddings=OpenAIEmbeddings(model="text-embedding-3-large"),
-#     connection=connection_string,
-#     use_jsonb=True,
-# )
-
-# vector_store.add_documents(docs)
-
-# retriever = vector_store.as_retriever(search_type="similarity", search_kwargs={"k": 1})
 
 origins = [
     "http://localhost",
@@ -161,9 +97,6 @@ human = """
 
 (reminder to respond in a JSON blob no matter what)"""
 
-##########################
-# 이 코드안에 있는 문자열 자체도 LLM이 사용하는 거임..
-
     
 @tool
 def get_user_class_info( # default 값에 따라 받아오는 값이 달라짐 (ex) 6, 6학년 이런게 달라짐..
@@ -179,9 +112,7 @@ def get_user_class_info( # default 값에 따라 받아오는 값이 달라짐 (
         - 일반적인 명칭이 입력된 경우 "안녕하세요 웅진씽크빅 챗봇입니다. 자녀의 이름과 학교명을 구체적으로 알려주세요."라고 응답하십시오.
     """
     # Parameters for the request
-    print(" -------------------------> 1 get_user_class_info : ", user_name, user_school, user_grade)
     class_datas = postrgre_db.fetch_all(db_sql.select_class_info, (user_name, user_school, user_grade))
-    print(" -------------------------> 2 class_datas : ", class_datas)
 
     if class_datas is None:
         return "입력 정보에 부합되는 수업정보가 없습니다.  다시 자녀정보를 입력해주세요."
@@ -210,10 +141,7 @@ def get_user_class_progress_info(
         - "'수업번호' ...." 이 형식의 경우 수업번호는 '수업번호' 이고 수업이름은 default 값입니다.
     """
     # Parameters for the request
-    print(" -------------------------> 3 get_user_class_info : ", user_name, class_data, class_id)
-
     class_progress_data = postrgre_db.fetch_one(db_sql.select_class_progress_info_02, (user_name, f"%{class_data}%", class_id))
-    print(" -------------------------> 4 get_user_class_info : ", user_name, class_data, class_id)
 
     if class_progress_data is None:
         return f'''
@@ -248,7 +176,6 @@ agent_user_class = create_structured_chat_agent(
 agent_user_class_executor = AgentExecutor(
     agent=agent_user_class,
     tools=[get_user_class_info],
-    # verbose=True,
     handle_parsing_errors=True,
     memory=memory,
     max_iterations=7,
@@ -269,7 +196,6 @@ agent_progress = create_structured_chat_agent(
 agent_progress_executor = AgentExecutor(
     agent=agent_progress,
     tools=[get_user_class_progress_info],
-    # verbose=True,
     handle_parsing_errors=True,
     memory=memory,
     max_iterations=7,
@@ -290,7 +216,6 @@ chains_prompt = {
     "GENERAL_INQUIRIES"     :   prompts["general_inquiries_wj"]     | llm | StrOutputParser() 
 }
 
-
 str_LEARNING_SUPPORT = {
     "CHECK_PROGRESS" :   "학습 진도 체크를", "CHANGE_TIME" :   "시간 조정을", "TEACHER_COUNSELING" :   "담당 선생님 상담을"
 }
@@ -303,26 +228,18 @@ answers_nollm = {
 @app.post("/chat/")
 async def chat(query: UserQuery):
     try:
-        # test_data = postrgre_db.fetch_all(db_sql.select_test, ("이웅진",))
         conv = conversation_state.get_conversation(query.conversation_id)
-        print(" -------------------------> query : ", query)
         print(" conv : ", conv)
         previous_intent = conv["intent"]        # 이전 의도 저장
         previous_step = conv["current_step"]    # 이전 단계 저장
         answer = None                           # 일단 선언 먼저 필요.
         # 1. 의도 분류 #########################################################
         if not conv["intent"]:                  # 의도 분석 (새로운 대화이거나 분류 불가능한 이전 상태인 경우)
-            # retrieved_docs = retriever.get_relevant_documents(query.question)
-            # if retrieved_docs:
-            #     intent = chain_intent["INTENT"].invoke({"question": query.question}).strip()                
-            # else:
-            #     intent = chain_intent["INTENT"].invoke({"question": query.question}).strip()
             intent = chain_intent["INTENT"].invoke({"question": query.question}).strip()
             
             
             dict_list = [chain_intent, chains_prompt, str_LEARNING_SUPPORT]
             if intent in ["TEACHER_RECRUITMENT", "EMPLOYEE_RECRUITMENT", "LEARNING_SUPPORT"]:
-            # if intent in (intent in d for d in dict_list):
                 context = {                   # 프롬프트에 필요한 컨텍스트 구성
                         "question": query.question,
                         "current_step": conv["current_step"],
@@ -337,13 +254,11 @@ async def chat(query: UserQuery):
 
             if "None" in intent or not any(intent in d for d in dict_list):  # 분류 불가능한 경우 처리    
                 if previous_intent:                                     # 이전 상태가 있었다면 그 상태 유지
-                    # answer = "죄송합니다. 질문을 이해하지 못했습니다. 이전 문의하신 내용을 계속 진행하시겠습니까?"   
                     answer = answers_nollm["REASK"]                 
                     conv["intent"] = previous_intent                    # 이전 상태로 복원
                     conv["current_step"] = previous_step
                     conv["is_reset"] = False
                 else:
-                    # 완전히 새로운 대화인 경우
                     # answer = "안녕하세요! 웅진씽크빅 고객센터입니다. 어떤 도움이 필요하신가요? 다음 서비스를 제공해드릴 수 있습니다: \n 1.회원관련 2.교사채용 3.직원채용 4.고객 정보 업데이트"
                     answer = answers_nollm["NEWASK"]                                     
                     conv["intent"] = None
@@ -351,33 +266,26 @@ async def chat(query: UserQuery):
                     conv["is_reset"] = True
 
             conv["intent"] = intent                     # 정상적인 의도 분류된 경우
-        print(" -------------------------> 2  : ")
 
         # 2. 답변 생성 #########################################################
         if conv.get("intent", "") in ("CHECK_PROGRESS", "CHANGE_TIME", "TEACHER_COUNSELING"):
-            # conv["intent"] = intent
             conv["is_reset"] = False
             if conv.get("intent", "") in ("CHECK_PROGRESS") :
                 
                 chat_history = memory.buffer_as_messages
                 if conv["current_step"] == None :
-                    print(" -------------------------> 2.1 : ", query.question)    
                     response = agent_user_class_executor.invoke({
                         "input": query.question,
                         "chat_history": chat_history,
                     })
-                    print(" -------------------------> 2.2 : ", response)    
                     if "수업 진도를 체크하고 싶으신가요" in response['output']:   
                         conv["current_step"] = "FINAL"      # 수업정보가 있으면 준비 OK 라서 다음 FINAL로 update
-                        print(" -------------------------> 2.2.1 : ", conv["current_step"])    
 
                 else:
-                    print(" -------------------------> 2.3 : ", query.question)    
                     response = agent_progress_executor.invoke({
                         "input": query.question,
                         "chat_history": chat_history,
                     })
-                    print(" -------------------------> 2.4 : ", response)    
                     if "더 필요한 사항은 있으실까요? 학습안내" in response['output']:   # intent 초기화 ################# prompt에 intent 종료 시그널 포함시켜야 됨.
                         conv["current_step"] = None
                         conv["intent"] = ""     
@@ -385,33 +293,12 @@ async def chat(query: UserQuery):
             
                 answer = response['output']     
 
-        # if not answer:
-        #     # retrieved_docs = retriever.get_relevant_documents(conv["question"])
-        #     # retrieved_docs = retriever.get_relevant_documents({"question": query.question})
-        #     # retrieved_docs = retriever.get_relevant_documents({"query": query.question})
-        #     retrieved_docs = retriever.get_relevant_documents(query.question)           # OK 
-        #     # retrieved_format_docs = format_docs(retrieved_docs)
-        #     print("format_docs(retrieved_docs) : ", format_docs(retrieved_docs))
-        #     context = {                   # 프롬프트에 필요한 컨텍스트 구성
-        #         "context": format_docs(retrieved_docs),
-        #         "question": query.question,
-        #         "current_step": conv["current_step"],
-        #     }
-        #     chain = chains_prompt[conv["intent"]]           # 현재 의도에 따른 프롬프트 체인 선택
-            
-        #     answer = chain.invoke(context).strip()          # 응답 생성     
-        #     conv["is_reset"] = False        
-        #     conv["intent"]  = None          # 의도 초기화
-
         answer = answer.strip()
         conversation_state.update_conversation( # 대화 이력 업데이트
             query.conversation_id,
             history=[{"question": query.question, "answer": answer, "step": conv["current_step"]}]
         )
 
-        print(" answer ---- conv : ", conv)
-        print(" answer ---- answer : ", answer)
-        
         return {
             "answer": answer,
             "intent": conv["intent"],
