@@ -4,14 +4,6 @@ from psycopg.rows import dict_row
 
 class PostgreSqlDB:
     def __init__(self):
-        # self.db_config = {
-        #     "host": os.environ["DBHOST"],
-        #     "dbname": os.environ["DBNAME"],
-        #     "user": os.environ["DBUSER"],
-        #     "password": os.environ["DBPWD"],
-        #     "port": int(os.environ["DBPORT"])
-        # }
-        # self.connection_string = os.environ["POSTGRESQL_CONNECTION_STRING"]
         self.db_config = os.environ["POSTGRESQL_CONNECTION_STRING"]
         
     def execute(self, query, params=None):

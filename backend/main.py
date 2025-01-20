@@ -209,11 +209,11 @@ chain_intent = {        # 체인 정의 (중간 의도 파악용, 답변 활용X
 }
 
 chains_prompt = {
-    "GREETING"              :   prompts["greeting_0"]               | llm | StrOutputParser(),  # 단순인사 prompt
-    "MEMBERSHIP"            :   prompts["general_inquiries_wj"]     | llm | StrOutputParser(), #| {"context": retriever | format_docs,"question": RunnablePassthrough()} ,
-    "LEARNING_SUPPORT"      :   prompts["general_inquiries_wj"]     | llm | StrOutputParser(), #| {"context": retriever | format_docs,"question": RunnablePassthrough()} ,
-    "TECHNICAL_SUPPORT"     :   prompts["general_inquiries_wj"]     | llm | StrOutputParser(), #| {"context": retriever | format_docs,"question": RunnablePassthrough()} ,
-    "GENERAL_INQUIRIES"     :   prompts["general_inquiries_wj"]     | llm | StrOutputParser() 
+    "GREETING"              :   prompts["greeting_0"]               | llm | StrOutputParser(), # 단순인사 prompt
+    "MEMBERSHIP"            :   prompts["membership_management_1"]  | llm | StrOutputParser(), 
+    "LEARNING_SUPPORT"      :   prompts["learning_support"]         | llm | StrOutputParser(), 
+    "TECHNICAL_SUPPORT"     :   prompts["technical_support"]        | llm | StrOutputParser(), 
+    "GENERAL_INQUIRIES"     :   prompts["general_inquiries"]        | llm | StrOutputParser() 
 }
 
 str_LEARNING_SUPPORT = {
@@ -222,7 +222,7 @@ str_LEARNING_SUPPORT = {
 
 answers_nollm = {
     "REASK"                 :   "죄송합니다. 질문을 이해하지 못했습니다. 이전 문의하신 내용을 계속 진행하시겠습니까?",
-    "NEWASK"                :   "안녕하세요! 웅진씽크빅 고객센터입니다. 어떤 도움이 필요하신가요? 다음 서비스를 제공해드릴 수 있습니다: \n 1.회원관련 2.교사채용 3.직원채용 4.고객 정보 업데이트"
+    "NEWASK"                :   "안녕하세요! 학습지 고객센터입니다. 어떤 도움이 필요하신가요? 다음 서비스를 제공해드릴 수 있습니다: \n 1.회원관련 2.교사채용 3.직원채용 4.고객 정보 업데이트"
 }
 
 @app.post("/chat/")
