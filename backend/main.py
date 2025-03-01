@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from langchain_core.output_parsers import StrOutputParser
 from langchain_openai import ChatOpenAI
+from langchain_community.chat_models import ChatOllama
 from src.prompt import prompts
 from dotenv import load_dotenv
 
@@ -69,16 +70,17 @@ conversation_state = ConversationState()
 postrgre_db = PostgreSqlDB()
 
 # LLM
-llm = ChatOpenAI(
-    model="gpt-4o",   #
-    temperature=0.2,
-    max_tokens=256,
-    streaming=True
-)
+# llm = ChatOpenAI(
+#     model="gpt-4o",   #
+#     temperature=0.2,
+#     max_tokens=256,
+#     streaming=True
+# )
+llm = ChatOllama(model="mistral:latest")
 
 origins = [
-    "http://localhost",
-    "http://localhost:3000",
+    "http://61.108.166.16",
+    "http://61.108.166.16:3000",
 ]
 
 app.add_middleware(
@@ -88,7 +90,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 human = """
 {input}
