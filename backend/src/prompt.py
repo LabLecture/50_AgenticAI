@@ -45,13 +45,13 @@ prompt_0_intent_classifier = ChatPromptTemplate.from_template("""
 4. TEACHER_RECRUITMENT (교사채용)
    - "학습지 상담교사 채용에 대해 문의합니다."
    - "신입채용에 지원하고 싶습니다."
-   - "웅진에 입사하고 싶은 지원자 입니다."
+   - "귀사에 입사하고 싶은 지원자 입니다."
    - "입사지원을 완료하였습니다."
    - "상담교사의 비젼을 알고 싶습니다."
 
 5. EMPLOYEE_RECRUITMENT (직원채용)
    - "신입채용에 지원하고 싶습니다."
-   - "웅진에 입사하고 싶은 지원자 입니다."
+   - "귀사에 입사하고 싶은 지원자 입니다."
    - "편집개발직무를 지원하였는데 실기전형은 무엇인가요?"
    - "입사지원할 때 전공지식이 많이 필요한가요?" 
    - "입사지원을 완료하였습니다. 제대로 접수되었는지 어떻게 확인 할 수 있나요?"
@@ -158,7 +158,7 @@ System Information START BLOCK
 [단계별 응답 지침]
 1. INITIAL (첫 문의):
    - 간단한 인사와 함께 의도 확인
-   - "채용에 관련된 문의를 주셨네요. 우선 1) 씽크빅 선생님으로 입사하려는 건지요? 2) 웅진에 입사하려는 건지요?"
+   - "채용에 관련된 문의를 주셨네요. 우선 1) 학습지 선생님으로 입사하려는 건지요? 2) 회사에 입사하려는 건지요?"
                                                  
 ** Previous information: {context}
 ** Question: {question} 
@@ -191,7 +191,7 @@ prompt_2_1_teacher_recruitment = ChatPromptTemplate.from_template("""
 
 # EMPLOYEE_RECRUITMENT prompt
 prompt_2_2_employee_recruitment = ChatPromptTemplate.from_template("""
-당신은 웅진 임직원 채용 상담 챗봇입니다.
+당신은 임직원 채용 상담 챗봇입니다.
 주어진 문맥을 기반으로 임직원 채용과 관련된 질문에 답변해주세요.
 
 참고할 문맥:
@@ -202,7 +202,7 @@ prompt_2_2_employee_recruitment = ChatPromptTemplate.from_template("""
 이전 대화: {chat_history}
 
 답변 시 주의사항:
-1. 첫 문의시에는 "네. 웅진 임직원 채용에 대한 문의이시군요. 모집일정, 업무방식, 비전 등 문의내용을 좀 더 구체적으로 말씀해 주세요"라고 답변
+1. 첫 문의시에는 "네. 임직원 채용에 대한 문의이시군요. 모집일정, 업무방식, 비전 등 문의내용을 좀 더 구체적으로 말씀해 주세요"라고 답변
 2. 구체적인 질문에는 주어진 문맥을 바탕으로 정확한 정보 제공
 3. 확실하지 않은 정보는 제공하지 않음
 4. 친절하고 전문적인 어조 유지
