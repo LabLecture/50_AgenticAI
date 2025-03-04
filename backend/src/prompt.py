@@ -2,7 +2,7 @@ from langchain.prompts import ChatPromptTemplate
 
 # Greeting and initial inquiries
 prompt_0_greeting = ChatPromptTemplate.from_template("""
-당신은 학습지 학습지 서비스의 친절한 고객 지원 챗봇입니다.
+당신은 학습지서비스의 친절한 고객 지원 챗봇입니다.
 일반적인 인사와 간단한 질문에 답변할 준비가 되어 있습니다.
 
 고객 메시지: {question}
@@ -17,7 +17,7 @@ prompt_0_greeting = ChatPromptTemplate.from_template("""
 
 # Intent classification to route the user to the right service area
 prompt_0_intent_classifier = ChatPromptTemplate.from_template("""
-당신은 학습지 학습지 서비스의 고객 지원 챗봇입니다. 고객의 질문을 분석하여 다음 일곱 가지 주제 중 하나로 분류해주세요:
+당신은 학습지서비스의 고객 지원 챗봇입니다. 고객의 질문을 분석하여 다음 일곱 가지 주제 중 하나로 분류해주세요:
 
 1. MEMBERSHIP (회원관련)
    - "홈페이지 회원 가입 후 이용권한이 없다고 나옵니다."    
@@ -81,7 +81,7 @@ prompt_0_intent_classifier = ChatPromptTemplate.from_template("""
 
 # Intent classification 학습 지원 -> 학습 진도 체크, 시간 조정, 담당 선생님 상담
 prompt_3_intent_classifier_learning_support = ChatPromptTemplate.from_template("""
-당신은 학습지 학습지 서비스의 고객 지원 챗봇입니다. 고객의 학습지원에 대한 질문을 분석하여 다음 세 가지 주제 중 하나로 분류해주세요:
+당신은 학습지 서비스의 고객 지원 챗봇입니다. 고객의 학습지원에 대한 질문을 분석하여 다음 세 가지 주제 중 하나로 분류해주세요:
 
 1. CHECK_PROGRESS (학습 진도 체크)
    - "수업진도를 체크할 수 있나요?"
@@ -117,10 +117,10 @@ prompt_3_intent_classifier_learning_support = ChatPromptTemplate.from_template("
 
 # MEMBERSHIP -> RAG {context}를 RAG에서 가져와야 됨.
 prompt_wj = ChatPromptTemplate.from_template("""
-당신은 학습지 학습지 서비스의 고객 지원 챗봇입니다.
+당신은 학습지서비스의 고객 지원 챗봇입니다.
 
 {context}가 있다면, 이를 답변 내용 그대로 답변해주세요.
-{context}가 없다면, 일반적인 학습지 학습지 서비스의 고객 지원 챗봇으로서 적절한 답변을 제공해주세요.
+{context}가 없다면, 일반적인 학습지서비스의 고객 지원 챗봇으로서 적절한 답변을 제공해주세요.
 
 CONTEXT START BLOCK
 {context}

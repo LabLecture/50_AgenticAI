@@ -110,7 +110,7 @@ def get_user_class_info( # default 값에 따라 받아오는 값이 달라짐 (
         추가적인 지시사항:
         - 유저 이름이나 학교명이 구체적으로 명시되지 않은 경우(예: '제 딸', '초등학교' 등), 해당 정보는 수집하지 마십시오.
         - 구체적인 이름과 학교명이 제공된 경우에만 user_name과 user_school을 설정하십시오.
-        - 일반적인 명칭이 입력된 경우 "안녕하세요 웅진씽크빅 챗봇입니다. 자녀의 이름과 학교명을 구체적으로 알려주세요."라고 응답하십시오.
+        - 일반적인 명칭이 입력된 경우 "안녕하세요 학습지 챗봇입니다. 자녀의 이름과 학교명을 구체적으로 알려주세요."라고 응답하십시오.
     """
     # Parameters for the request
     class_datas = postrgre_db.fetch_all(db_sql.select_class_info, (user_name, user_school, user_grade))
@@ -260,7 +260,7 @@ async def chat(query: UserQuery):
                     conv["current_step"] = previous_step
                     conv["is_reset"] = False
                 else:
-                    # answer = "안녕하세요! 웅진씽크빅 고객센터입니다. 어떤 도움이 필요하신가요? 다음 서비스를 제공해드릴 수 있습니다: \n 1.회원관련 2.교사채용 3.직원채용 4.고객 정보 업데이트"
+                    # answer = "안녕하세요! 학습지 고객센터입니다. 어떤 도움이 필요하신가요? 다음 서비스를 제공해드릴 수 있습니다: \n 1.회원관련 2.교사채용 3.직원채용 4.고객 정보 업데이트"
                     answer = answers_nollm["NEWASK"]                                     
                     conv["intent"] = None
                     conv["current_step"] = None
