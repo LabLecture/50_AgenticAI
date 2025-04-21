@@ -9,7 +9,8 @@ from langchain_chroma import Chroma
 from src.utils import format_docs
 from src.prompt import prompt
 from dotenv import load_dotenv
-from langchain_community.chat_models import ChatOllama
+# from langchain_community.chat_models import ChatOllama
+from langchain_ollama import ChatOllama
 import os
 
 load_dotenv()
