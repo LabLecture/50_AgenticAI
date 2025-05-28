@@ -4,3 +4,4 @@ frontend/node_modules
 /backend/vector_store
 /backend/__pycache__
 /backend/vector_store
+*.pyc
