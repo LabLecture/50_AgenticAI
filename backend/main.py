@@ -119,9 +119,9 @@ async def chat(request: Request):
     """chat endpoint"""
     try:
         body = await request.json()
-        print("body ----> ", body)
-        query = body["question"]
-        print("query ----> ", query)
+        # print("body ----> ", body)
+        query = body["query"]
+        # print("query ----> ", query)
         response = query_engine.query(query)
         answer = response.response  # 여기를 수정
         # answer = query_engine.query(query)
