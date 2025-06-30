@@ -1,8 +1,10 @@
 import logging
 import json
+import re
+
 from copy import deepcopy
 from typing import Literal
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import HumanMessage, AIMessage
 from langgraph.types import Command
 from langgraph.graph import END
 
@@ -22,22 +24,26 @@ RESPONSE_FORMAT = "Response from {}:\n\n<response>\n{}\n</response>\n\n*Please e
 
 def user_class_node(state: State) -> Command[Literal["supervisor"]]:
     """Node for the user_class agent that performs user_class tasks."""
-    logger.info("user_class agent starting task")
+    logger.info(f"user_class agent starting task  state: {state}")
     result = user_class_agent.invoke(state)
     logger.info("user_class agent completed task")
-    logger.debug(f"user_class agent response: {result['messages'][-1].content}")
+    logger.debug(f"user_class agent response: {result}")
+
+    # Get the last AI message
+    last_message = None
+    for msg in reversed(result["messages"]):
+        if isinstance(msg, AIMessage):
+            last_message = msg
+            break
+    
+    if not last_message:
+        last_message = AIMessage(content="죄송합니다. 응답을 생성하는데 실패했습니다.")
+    
     return Command(
         update={
-            "messages": [
-                HumanMessage(
-                    content=RESPONSE_FORMAT.format(
-                        "user_class", result["messages"][-1].content
-                    ),
-                    name="user_class",
-                )
-            ]
+            "messages": [last_message]
         },
-        goto="supervisor",
+        goto="__end__"  
     )
 
 
@@ -46,36 +52,50 @@ def class_progress_node(state: State) -> Command[Literal["supervisor"]]:
     logger.info("class_progress agent starting task")
     result = class_progress_agent.invoke(state)
     logger.info("class_progress agent completed task")
-    logger.debug(f"class_progress agent response: {result['messages'][-1].content}")
+    # logger.debug(f"class_progress agent response: {result['messages'][-1].content}")
+    logger.debug(f"class_progress agent response: {result}")
+    # Get the last AI message
+    last_message = None
+    for msg in reversed(result["messages"]):
+        if isinstance(msg, AIMessage):
+            last_message = msg
+            break
+    
+    if not last_message:
+        last_message = AIMessage(content="죄송합니다. 응답을 생성하는데 실패했습니다.")
+    
     return Command(
         update={
-            "messages": [
-                HumanMessage(
-                    content=RESPONSE_FORMAT.format(
-                        "class_progress", result["messages"][-1].content
-                    ),
-                    name="class_progress",
-                )
-            ]
+            "messages": [last_message]
         },
-        goto="supervisor",
+        goto="__end__"  
     )
 
 
 def supervisor_node(state: State) -> Command[Literal[*TEAM_MEMBERS, "__end__"]]:
-# def supervisor_node(state: State) -> Command[Literal[tuple(TEAM_MEMBERS), "__end__"]]:
     """Supervisor node that decides which agent should act next."""
-    logger.info("Supervisor evaluating next action")
+    logger.info("Supervisor evaluating next action ------------------------------------------>")
     messages = apply_prompt_template("supervisor", state)
     response = (
         get_llm_by_type(AGENT_LLM_MAP["supervisor"])
-        # .with_structured_output(Router)
-        .with_structured_output(Router,method="json_mode")
+        .with_structured_output(Router, method="json_mode")
         .invoke(messages)
     )
     goto = response["next"]
     logger.debug(f"Current state messages: {state['messages']}")
     logger.debug(f"Supervisor response: {response}")
+
+    # 🔍 수동 검증: Planner 계획에서 정보 누락으로 인해 중단된 경우 처리
+    try:
+        plan = json.loads(state.get("full_plan", "{}"))
+        if (
+            plan.get("title", "").startswith("수업 정보 조회 실패")
+            or plan.get("title", "").startswith("수업 진도 확인 실패")
+        ):
+            logger.info("필수 정보 누락으로 흐름을 종료합니다.")
+            return Command(goto="__end__", update={"next": "__end__"})
+    except Exception as e:
+        logger.warning(f"full_plan JSON parse error: {e}")
 
     if goto == "FINISH":
         goto = "__end__"
@@ -85,10 +105,16 @@ def supervisor_node(state: State) -> Command[Literal[*TEAM_MEMBERS, "__end__"]]:
 
     return Command(goto=goto, update={"next": goto})
 
+def safe_serialize(obj):
+    try:
+        return json.dumps(obj, ensure_ascii=False, default=str)
+    except TypeError as e:
+        print("Serialization failed:", e)
+        return "{}"  # 또는 적절한 fallback
 
 def planner_node(state: State) -> Command[Literal["supervisor", "__end__"]]:
     """Planner node that generate the full plan."""
-    logger.info("Planner generating full plan")
+    logger.info("Planner generating full plan ------------------------------------------>>>>> ")
     messages = apply_prompt_template("planner", state)
     # whether to enable deep thinking mode
     llm = get_llm_by_type("supervisor")
@@ -103,10 +129,10 @@ def planner_node(state: State) -> Command[Literal["supervisor", "__end__"]]:
         messages[
             -1
         ].content += f"\n\n# Relative Search Results\n\n{json.dumps([{'titile': elem['title'], 'content': elem['content']} for elem in searched_content], ensure_ascii=False)}"
-    stream = llm.stream(messages)
-    full_response = ""
-    for chunk in stream:
-        full_response += chunk.content
+    
+    response = llm.invoke(messages)
+    full_response = response.content.strip()
+
     logger.debug(f"Current state messages: {state['messages']}")
     logger.debug(f"Planner response: {full_response}")
 
@@ -118,23 +144,26 @@ def planner_node(state: State) -> Command[Literal["supervisor", "__end__"]]:
 
     goto = "supervisor"
     try:
-        json.loads(full_response)
+        json_response = json.loads(full_response)
     except json.JSONDecodeError:
         logger.warning("Planner response is not a valid JSON")
         goto = "__end__"
 
+    if "정보 요청" in json_response.get("title", ""):
+        final_response = json_response.get("steps", [{}])[0].get("description", "")
+        final_message = [AIMessage(content=final_response, name="planner")]
+    else:
+        final_message = [HumanMessage(content=full_response, name="planner")]
+
     return Command(
-        update={
-            "messages": [HumanMessage(content=full_response, name="planner")],
-            "full_plan": full_response,
-        },
+        update={"messages": final_message,"full_plan": full_response},
         goto=goto,
     )
 
 
 def coordinator_node(state: State) -> Command[Literal["planner", "__end__"]]:
     """Coordinator node that communicate with customers."""
-    logger.info("Coordinator talking.")
+    logger.info(f"Coordinator talking. ------------------------------------------>>>> state : {state}")
     messages = apply_prompt_template("coordinator", state)
     response = get_llm_by_type(AGENT_LLM_MAP["coordinator"]).invoke(messages)
     logger.debug(f"Current state messages: {state['messages']}")
@@ -143,11 +172,19 @@ def coordinator_node(state: State) -> Command[Literal["planner", "__end__"]]:
     goto = "__end__"
     if "handoff_to_planner" in response.content:
         goto = "planner"
-    
 
-    return Command(
-        goto=goto,
-    )
+    # 메시지 update 추가
+    if goto == "__end__":
+        return Command(
+            goto=goto,
+            update={
+                "messages": state["messages"] + [response]
+            }
+        )
+    else:
+        return Command(
+            goto=goto,
+        )
 
 
 

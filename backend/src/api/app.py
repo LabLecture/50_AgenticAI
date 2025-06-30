@@ -9,9 +9,9 @@ from typing import Dict, List, Any, Optional, Union
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
-from sse_starlette.sse import EventSourceResponse
-import asyncio
-from typing import AsyncGenerator, Dict, List, Any
+# from sse_starlette.sse import EventSourceResponse
+# import asyncio
+# from typing import AsyncGenerator, Dict, List, Any
 
 from src.graph import build_graph
 from src.config import TEAM_MEMBERS
@@ -76,66 +76,47 @@ class ChatRequest(BaseModel):
 
 # @app.post("/api/chat/stream") # origin for merge
 @app.post("/chat")
-async def chat_endpoint(request: ChatRequest, req: Request):
+async def chat_endpoint(request: ChatRequest):
     """
-    Chat endpoint for LangGraph invoke.
-
-    Args:
-        request: The chat request
-        req: The FastAPI request object for connection state checking
-
-    Returns:
-        The streamed response
+    Chat endpoint for LangGraph invoke (non-streaming).
     """
     try:
         # Convert Pydantic models to dictionaries and normalize content format
+        logger.debug(f"------------------------------------> chat_endpoint, request={request}")
         messages = []
         for msg in request.messages:
-            message_dict = {"role": msg.role}
-
-            # Handle both string content and list of content items
             if isinstance(msg.content, str):
-                message_dict["content"] = msg.content
+                content = msg.content
             else:
-                # For content as a list, convert to the format expected by the workflow
-                content_items = []
+                content = []
                 for item in msg.content:
-                    if item.type == "text" and item.text:
-                        content_items.append({"type": "text", "text": item.text})
-                    elif item.type == "image" and item.image_url:
-                        content_items.append(
-                            {"type": "image", "image_url": item.image_url}
-                        )
+                    if item.type == "text":
+                        content.append({"type": "text", "text": item.text})
+                    elif item.type == "image":
+                        content.append({"type": "image", "image_url": item.image_url})
 
-                message_dict["content"] = content_items
+            messages.append({
+                "role": msg.role,
+                "content": content
+            } if isinstance(content, list) else {
+                "role": msg.role,
+                "content": content
+            })
 
-            messages.append(message_dict)
-
-        async def event_generator():
-            try:
-                async for event in run_agent_workflow(
-                    messages,
-                    request.debug,
-                    request.deep_thinking_mode,
-                    request.search_before_planning,
-                ):
-                    # Check if client is still connected
-                    if await req.is_disconnected():
-                        logger.info("Client disconnected, stopping workflow")
-                        break
-                    yield {
-                        "event": event["event"],
-                        "data": json.dumps(event["data"], ensure_ascii=False),
-                    }
-            except asyncio.CancelledError:
-                logger.info("Stream processing cancelled")
-                raise
-
-        return EventSourceResponse(
-            event_generator(),
-            media_type="text/event-stream",
-            sep="\n",
+        result = await run_agent_workflow(
+            messages,
+            request.debug,
+            request.deep_thinking_mode,
+            request.search_before_planning,
+            # return_final_only=True,
         )
+
+        logger.debug(f"------------------------------------> chat_endpoint, result={result}")
+        
+        return {"response": result["answer"]}
     except Exception as e:
-        logger.error(f"Error in chat endpoint: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error(f"Error in chat endpoint: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500, 
+            detail=f"An error occurred: {str(e)}"
+        )

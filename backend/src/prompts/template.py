@@ -5,6 +5,8 @@ from datetime import datetime
 from langchain_core.prompts import PromptTemplate
 from langgraph.prebuilt.chat_agent_executor import AgentState
 
+import logging
+logger = logging.getLogger(__name__)
 
 def get_prompt_template(prompt_name: str) -> str:
     # template = open(os.path.join(os.path.dirname(__file__), f"{prompt_name}.md")).read()
@@ -17,8 +19,10 @@ def get_prompt_template(prompt_name: str) -> str:
 
 
 def apply_prompt_template(prompt_name: str, state: AgentState) -> list:
+    template = get_prompt_template(prompt_name)
+    logger.debug(f"Raw template apply_prompt_template {prompt_name}")
     system_prompt = PromptTemplate(
         input_variables=["CURRENT_TIME"],
-        template=get_prompt_template(prompt_name),
+        template=template,
     ).format(CURRENT_TIME=datetime.now().strftime("%a %b %d %Y %H:%M:%S %z"), **state)
     return [{"role": "system", "content": system_prompt}] + state["messages"]

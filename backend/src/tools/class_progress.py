@@ -3,7 +3,6 @@ from typing import Annotated
 
 from langchain_core.messages import HumanMessage
 from langchain_core.tools import tool
-from .decorators import log_io
 
 # from db import PostgreSqlDB
 # import db_sql
@@ -16,7 +15,6 @@ postrgre_db = PostgreSqlDB()
 
 
 @tool
-@log_io
 def class_progress_tool(
     user_name:Annotated[str, "학생(자녀)이름, default value is **샘플스**"],
     class_data:Annotated[str, "수업이름, default value is **샘플**"],
@@ -32,15 +30,12 @@ def class_progress_tool(
     """
     try:
         # Parameters for the request
+        print(f"class_progress_tool start user_name: {user_name}, class_data: {class_data}, class_id: {class_id}")
         class_progress_data = postrgre_db.fetch_one(db_sql.select_class_progress_info_02, (user_name, f"%{class_data}%", class_id))
 
         if class_progress_data is None:
-            return f'''
-                입력 정보에 부합되는 수업정보가 없습니다.
-                다시 입력해주세요.
-            '''
-            raise ValueError('해당 유저의 데이터가 존재하지 않습니다')
-        
+            return "입력 정보에 부합되는 수업정보가 없습니다.  다시 입력해주세요."
+                
         return f'''
         학생(자녀)이름:{user_name}
         수업진도:{class_progress_data}
@@ -49,3 +44,4 @@ def class_progress_tool(
         error_msg = f"Failed to crawl. Error: {repr(e)}"
         logger.error(error_msg)
         return error_msg
+    

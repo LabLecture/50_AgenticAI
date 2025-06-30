@@ -78,12 +78,14 @@ def get_llm_by_type(llm_type: LLMType) -> ChatOpenAI | ChatDeepSeek:
         #     base_url=REASONING_BASE_URL,
         #     api_key=REASONING_API_KEY,
         # )     
-        llm = ChatOllama(model="qwq:latest", temperature=0, base_url = "http://192.168.1.203:11434")
+        llm = ChatOllama(model="qwq:latest", temperature=0, base_url = "http://192.168.1.203:11434", stream=False)
         # print(type(llm))
     elif llm_type == "supervisor":
-        llm = ChatOllama(model="mistral-small:latest", temperature=0, base_url = "http://192.168.1.203:11434", format="json")
+        llm = ChatOllama(model="mistral-small:latest", temperature=0, base_url = "http://192.168.1.203:11434", format="json", stream=False)
+        # llm = ChatOllama(model="qwen2.5:72b", temperature=0, base_url = "http://192.168.1.203:11434", stream=False)
     elif llm_type == "basic":
-        llm = ChatOllama(model="mistral-small:latest", temperature=0, base_url = "http://192.168.1.203:11434")
+        llm = ChatOllama(model="mistral-small:latest", temperature=0, base_url = "http://192.168.1.203:11434", stream=False)
+        # llm = ChatOllama(model="qwen2.5:72b", temperature=0, base_url = "http://192.168.1.203:11434", stream=False)
         # llm = ChatOllama(model="qwq:latest", temperature=0, base_url = "http://192.168.1.203:11434")
         # print(type(llm))
         # llm = create_openai_llm(
@@ -97,7 +99,7 @@ def get_llm_by_type(llm_type: LLMType) -> ChatOpenAI | ChatDeepSeek:
         #     base_url=VL_BASE_URL,
         #     api_key=VL_API_KEY,
         # )
-        llm = ChatOllama(model="qwq:latest", temperature=0, base_url = "http://192.168.1.203:11434")
+        llm = ChatOllama(model="qwq:latest", temperature=0, base_url = "http://192.168.1.203:11434", stream=False)
         # llm = ChatOllama(model="mistral-small:latest", temperature=0, base_url = "http://192.168.1.203:11434")
     else:
         raise ValueError(f"Unknown LLM type: {llm_type}")
@@ -113,11 +115,11 @@ vl_llm = get_llm_by_type("vision")
 
 
 if __name__ == "__main__":
-    stream = reasoning_llm.stream("what is mcp?")
-    full_response = ""
-    for chunk in stream:
-        full_response += chunk.content
-    print(full_response)
+    # stream = reasoning_llm.stream("what is mcp?")
+    # full_response = ""
+    # for chunk in stream:
+    #     full_response += chunk.content
+    print("__main__")
 
-    basic_llm.invoke("Hello")
-    vl_llm.invoke("Hello")
+    # basic_llm.invoke("Hello")
+    # vl_llm.invoke("Hello")
