@@ -41,6 +41,7 @@ class ConversationState:
     def create_new_conversation(self) -> dict:
         return {
             "intent": None,
+            "is_reset": None,
             "current_step": None,
             "context": {},
             "history": []
@@ -52,6 +53,7 @@ class ConversationState:
 
     def update_conversation(self, conv_id: str, intent: Optional[str] = None, 
                           current_step: Optional[str] = None, 
+                          is_reset: Optional[str] = None, 
                           context: Optional[dict] = None,
                           history: Optional[list] = None):
         conv = self.get_conversation(conv_id)
@@ -59,6 +61,8 @@ class ConversationState:
             conv["intent"] = intent
         if current_step:
             conv["current_step"] = current_step
+        if is_reset:
+            conv["is_reset"] = is_reset        
         if context:
             conv["context"].update(context)
         if history:
@@ -76,11 +80,17 @@ postrgre_db = PostgreSqlDB()
 #     max_tokens=256,
 #     streaming=True
 # )
-llm = ChatOllama(model="mistral:latest")
+# llm = ChatOllama(model="mistral-small:latest")
+# llm = ChatOllama(model="mistral:latest")
+# llm = ChatOllama(model="qwen3:14b")
+llm = ChatOllama(model="cogito:14b")
+# llm = ChatOllama(model="mistral-nemo:12b")
+# llm = ChatOllama(model="deepseek-r1:14b")
+
 
 origins = [
-    "http://61.108.166.16",
-    "http://61.108.166.16:3000",
+    "http://localhost",
+    "http://localhost:3000",
 ]
 
 app.add_middleware(
@@ -253,7 +263,7 @@ async def chat(query: UserQuery):
                 else:
                     intent = "None"  
 
-            if "None" in intent or not any(intent in d for d in dict_list):  # 분류 불가능한 경우 처리    
+            if "None" in intent or "GENERAL_INQUIRIES" in intent or not any(intent in d for d in dict_list):  # 분류 불가능한 경우 처리    
                 if previous_intent:                                     # 이전 상태가 있었다면 그 상태 유지
                     answer = answers_nollm["REASK"]                 
                     conv["intent"] = previous_intent                    # 이전 상태로 복원
@@ -307,8 +317,6 @@ async def chat(query: UserQuery):
             "is_reset": conv["is_reset"], 
             "context": conv["context"]          # 현재 컨텍스트 상태도 반환
         }            
-        
-
         
     except Exception as e:
         print(e)
