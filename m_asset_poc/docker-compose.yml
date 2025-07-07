@@ -1,0 +1,65 @@
+version: '3.8'
+
+services:
+  m-asset-poc:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: m-asset-poc
+    ports:
+      - "8010:8010"  # API Server
+      - "8011:8011"  # A2A Server
+      - "8888:8888"  # Jupyter Lab
+    volumes:
+      - ./logs:/app/logs
+      - ./.env:/app/.env
+      # 개발 시 코드 변경사항 실시간 반영 (선택적)
+      # - ./src:/app/src
+    environment:
+      - PYTHONPATH=/app
+      - PYTHONUNBUFFERED=1
+    # 외부 서비스와 연결 (필요 시)
+    # depends_on:
+    #   - redis
+    #   - postgres
+    stdin_open: true
+    tty: true
+    restart: unless-stopped
+    networks:
+      - m-asset-network
+
+  # Redis (캐싱용 - 선택적)
+  redis:
+    image: redis:7-alpine
+    container_name: m-asset-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+    networks:
+      - m-asset-network
+
+  # PostgreSQL (데이터베이스 - 선택적, 외부 DB 사용 시 제거)
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: m-asset-postgres
+  #   environment:
+  #     POSTGRES_DB: skku
+  #     POSTGRES_USER: aitheuser1
+  #     POSTGRES_PASSWORD: aithepwd8#
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   restart: unless-stopped
+  #   networks:
+  #     - m-asset-network
+
+volumes:
+  redis_data:
+  # postgres_data:
+
+networks:
+  m-asset-network:
+    driver: bridge
