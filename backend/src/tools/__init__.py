@@ -6,11 +6,12 @@
 # from .browser import browser_tool
 from .user_class import user_class_tool
 from .class_progress import class_progress_tool
-
+from .link_provider import link_provider_tool
 
 __all__ = [
     "user_class_tool",
     "class_progress_tool",
+    "link_provider_tool",
     # "bash_tool",
     # "crawl_tool",
     # "tavily_tool",

@@ -7,6 +7,7 @@ from .nodes import (
     supervisor_node,
     user_class_node,
     class_progress_node,
+    link_provider_node,
     # research_node,
     # code_node,
     # browser_node,
@@ -23,6 +24,7 @@ def build_graph():
     builder.add_node("supervisor", supervisor_node)
     builder.add_node("user_class", user_class_node)
     builder.add_node("class_progress", class_progress_node)
+    builder.add_node("link_provider", link_provider_node)
     # builder.add_node("researcher", research_node)
     # builder.add_node("coder", code_node)
     # builder.add_node("browser", browser_node)

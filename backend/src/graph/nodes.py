@@ -9,7 +9,7 @@ from langgraph.types import Command
 from langgraph.graph import END
 
 # from src.agents import research_agent, coder_agent, browser_agent
-from src.agents import user_class_agent, class_progress_agent
+from src.agents import user_class_agent, class_progress_agent, link_provider_agent
 from src.agents.llm import get_llm_by_type
 from src.config import TEAM_MEMBERS
 from src.config.agents import AGENT_LLM_MAP
@@ -23,11 +23,11 @@ RESPONSE_FORMAT = "Response from {}:\n\n<response>\n{}\n</response>\n\n*Please e
 
 
 def user_class_node(state: State) -> Command[Literal["supervisor"]]:
-    """Node for the user_class agent that performs user_class tasks."""
-    logger.info(f"user_class agent starting task  state: {state}")
+    """Node for the user_class_agent_that performs user_class tasks."""
+    logger.info(f"user_class_agent_starting task  state: {state}")
     result = user_class_agent.invoke(state)
-    logger.info("user_class agent completed task")
-    logger.debug(f"user_class agent response: {result}")
+    logger.info("user_class_agent_completed task")
+    logger.debug(f"user_class_agent_response: {result}")
 
     # Get the last AI message
     last_message = None
@@ -71,10 +71,33 @@ def class_progress_node(state: State) -> Command[Literal["supervisor"]]:
         goto="__end__"  
     )
 
+def link_provider_node(state: State) -> Command[Literal["supervisor"]]:
+    """Node for the link_provider agent that performs link_provider tasks."""
+    logger.info("link_provider agent starting task")
+    result = link_provider_agent.invoke(state)
+    logger.info("link_provider agent completed task")
+    # logger.debug(f"link_provider agent response: {result['messages'][-1].content}")
+    logger.debug(f"link_provider agent response: {result}")
+    # Get the last AI message
+    last_message = None
+    for msg in reversed(result["messages"]):
+        if isinstance(msg, AIMessage):
+            last_message = msg
+            break
+    
+    if not last_message:
+        last_message = AIMessage(content="죄송합니다. 응답을 생성하는데 실패했습니다.")
+    
+    return Command(
+        update={
+            "messages": [last_message]
+        },
+        goto="__end__"  
+    )
 
 def supervisor_node(state: State) -> Command[Literal[*TEAM_MEMBERS, "__end__"]]:
     """Supervisor node that decides which agent should act next."""
-    logger.info("Supervisor evaluating next action ------------------------------------------>")
+    logger.info("Supervisor_evaluating_next_action ------------------------------------------>")
     messages = apply_prompt_template("supervisor", state)
     response = (
         get_llm_by_type(AGENT_LLM_MAP["supervisor"])
@@ -82,8 +105,8 @@ def supervisor_node(state: State) -> Command[Literal[*TEAM_MEMBERS, "__end__"]]:
         .invoke(messages)
     )
     goto = response["next"]
-    logger.debug(f"Current state messages: {state['messages']}")
-    logger.debug(f"Supervisor response: {response}")
+    logger.debug(f"Current_state_messages: {state['messages']}")
+    logger.debug(f"Supervisor_response: {response}")
 
     # 🔍 수동 검증: Planner 계획에서 정보 누락으로 인해 중단된 경우 처리
     try:
@@ -114,7 +137,7 @@ def safe_serialize(obj):
 
 def planner_node(state: State) -> Command[Literal["supervisor", "__end__"]]:
     """Planner node that generate the full plan."""
-    logger.info("Planner generating full plan ------------------------------------------>>>>> ")
+    logger.info("Planner_generating_full_plan_------------------------------------------>>>>> ")
     messages = apply_prompt_template("planner", state)
     # whether to enable deep thinking mode
     llm = get_llm_by_type("supervisor")

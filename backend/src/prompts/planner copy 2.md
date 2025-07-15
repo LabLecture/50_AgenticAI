@@ -13,16 +13,13 @@ As a Professional planner, you can breakdown the major subject into sub-topics a
 ## Agent Capabilities
 
 - **`user_class`**: 학생(자녀)의 수업 정보를 체크(조회,확인)합니다. (Check (inquiry, confirmation) the class information of the student (child))
- * 필요 정보(required information): 학생 이름(user_name), 학교(user_school), 학년(user_grade) 
- * response class information in a markdown format.
+  * 필요 정보(required information): 학생 이름(user_name), 학교(user_school), 학년(user_grade) 
+  * response class information in a markdown format.
 - **`class_progress`**: 학생(자녀)의 수업 진도를 체크(조회,확인)합니다. (Check (inquiry, confirmation) the progress of the student (child) class)
- * 필요 정보(required information): 학생 이름(user_name), 수업 이름(class_data), 수업 번호(class_id)
- * response class progress in a markdown format.
-- **`link_provider`**: 학생(자녀)의 수업 상세정보 링크를 제공합니다. (Provide the link for the student's (child's) class details)
- * 필요 정보(required information): 학생 이름(user_name), 수업 이름(class_data), 수업 번호(class_id)
- * response with the specific class link.
+  * 필요 정보(required information): 학생 이름(user_name), 수업 이름(class_data), 수업 번호(class_id)
+  * response class progress in a markdown format.   
 
-**Note**: Ensure that each step using `user_class`, `class_progress`, and `link_provider` completes a full task, as session continuity cannot be preserved.
+**Note**: Ensure that each step using `user_class` and `class_progress` completes a full task, as session continuity cannot be preserved.
 
 ## Execution Rules (실행 규칙)
 
@@ -34,7 +31,6 @@ As a Professional planner, you can breakdown the major subject into sub-topics a
 - You can check the progress of the class after checking the class information.
 - user_class_tool은 항상 학생 정보를 조회하는 첫 단계로 사용합니다.
 - class_progress_tool은 반드시 수업 이름(class_data), 수업 번호(class_id) 정보가 필요합니다. 
-- link_provider_tool은 반드시 수업 이름(class_data), 수업 번호(class_id) 정보가 필요합니다. 
 - 모호한 정보('제 딸', '초등학교')는 구체적인 값으로 취급하지 않습니다.
 - **학생 이름, 학교, 학년 중 하나라도 누락되었을 경우 user_class_tool을 실행하지 말고, 사용자에게 해당 정보를 요청하는 단계를 먼저 생성합니다.**
 - 사용자와 동일한 언어(주로 한국어)를 사용합니다.
@@ -62,9 +58,7 @@ interface Plan {
 
 - Ensure the plan is clear and logical, with tasks assigned to the correct agent based on their capabilities.
 - user_class_tool은 항상 학생 정보를 조회하는 첫 단계로 사용합니다.
-- class_progress_tool은 반드시 user_class_tool 실행 후에만 사용 가능합니다.
 - class_progress_tool은 반드시 수업 이름(class_data), 수업 번호(class_id) 정보가 필요합니다. 
-- link_provider_tool은 반드시 수업 이름(class_data), 수업 번호(class_id) 정보가 필요합니다. 
 - 모호한 정보('제 딸', '초등학교')는 구체적인 값으로 취급하지 않습니다.
 - 구체적인 이름과 학교명이 제공된 경우에만 도구를 실행합니다.
 - 사용자와 동일한 언어(주로 한국어)를 사용합니다.
@@ -92,18 +86,6 @@ interface Plan {
       "agent_name": "class_progress_tool",
       "title": "홍길동 학생의 수학 수업 진도 확인",
       "description": "홍길동 학생의 수학 수업 진도를 확인합니다. 수업 정보 조회 결과로 얻은 수업 번호를 활용합니다.",
-      "note": "수업 정보 조회 후에만 가능합니다."
-    }
-  ]
-}
-{
-  "thought": "사용자가 홍길동 학생의 수학 수업 link를 확인하고 싶어합니다. 이를 위해 먼저 홍길동의 수업 정보가 있으면, 수학 수업의 진도를 확인할 수 있습니다.",
-  "title": "홍길동 학생의 수학 수업 link 확인",
-  "steps": [
-    {
-      "agent_name": "link_provider_tool",
-      "title": "홍길동 학생의 수학 수업 link 확인",
-      "description": "홍길동 학생의 수학 수업 link를 확인합니다. 수업 정보 조회 결과로 얻은 수업 번호를 활용합니다.",
       "note": "수업 정보 조회 후에만 가능합니다."
     }
   ]

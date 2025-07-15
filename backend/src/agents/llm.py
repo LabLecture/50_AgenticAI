@@ -71,22 +71,30 @@ def get_llm_by_type(llm_type: LLMType) -> ChatOpenAI | ChatDeepSeek:
     """
     if llm_type in _llm_cache:
         return _llm_cache[llm_type]
-
+    # model_name = "qwen2.5:14b"      # 이 정보가 필요합니다. 감사합니다!
+    # model_name = "cogito:14b"       # user_class_tool start user_name: 사형로, user_school: 찴분리당, user_grade: 6
+    # model_name = "deepseek-r1:14b"  # English
+    # model_name = "mistral:latest"   # An error occurred: 'next'
+    # model_name = "mistral-nemo:12b" # An error occurred: 'next'
+    # model_name = "qwen3:14b"  # 서버 멈춤 An error occurred: 'next'
+    model_name = "mistral-small:latest" 
+    base_url = "http://222.234.38.96:11434"
     if llm_type == "reasoning":
         # llm = create_deepseek_llm(
         #     model=REASONING_MODEL,
         #     base_url=REASONING_BASE_URL,
         #     api_key=REASONING_API_KEY,
         # )     
-        llm = ChatOllama(model="qwq:latest", temperature=0, base_url = "http://192.168.1.203:11434", stream=False)
+        # llm = ChatOllama(model=model_name, temperature=0)
+        llm = ChatOllama(model=model_name, temperature=0, base_url = base_url)
         # print(type(llm))
     elif llm_type == "supervisor":
-        llm = ChatOllama(model="mistral-small:latest", temperature=0, base_url = "http://192.168.1.203:11434", format="json", stream=False)
-        # llm = ChatOllama(model="qwen2.5:72b", temperature=0, base_url = "http://192.168.1.203:11434", stream=False)
+        # llm = ChatOllama(model=model_name, temperature=0, format="json")
+        llm = ChatOllama(model=model_name, temperature=0, format="json", base_url = base_url)
     elif llm_type == "basic":
-        llm = ChatOllama(model="mistral-small:latest", temperature=0, base_url = "http://192.168.1.203:11434", stream=False)
-        # llm = ChatOllama(model="qwen2.5:72b", temperature=0, base_url = "http://192.168.1.203:11434", stream=False)
-        # llm = ChatOllama(model="qwq:latest", temperature=0, base_url = "http://192.168.1.203:11434")
+        # llm = ChatOllama(model=model_name, temperature=0)
+        llm = ChatOllama(model=model_name, temperature=0, base_url = base_url)
+        # llm = ChatOllama(model="qwq:latest", temperature=0)
         # print(type(llm))
         # llm = create_openai_llm(
         #     model=BASIC_MODEL,
@@ -99,7 +107,7 @@ def get_llm_by_type(llm_type: LLMType) -> ChatOpenAI | ChatDeepSeek:
         #     base_url=VL_BASE_URL,
         #     api_key=VL_API_KEY,
         # )
-        llm = ChatOllama(model="qwq:latest", temperature=0, base_url = "http://192.168.1.203:11434", stream=False)
+        llm = ChatOllama(model=model_name, temperature=0)
         # llm = ChatOllama(model="mistral-small:latest", temperature=0, base_url = "http://192.168.1.203:11434")
     else:
         raise ValueError(f"Unknown LLM type: {llm_type}")

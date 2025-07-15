@@ -3,15 +3,21 @@ from typing import Annotated
 
 from langchain_core.messages import HumanMessage
 from langchain_core.tools import tool
+# from .decorators import log_io
 
+# from db import PostgreSqlDB
+# import db_sql
 from src.tools.db import PostgreSqlDB
 from src.tools import db_sql
+# from src.crawler import Crawler
 
 logger = logging.getLogger(__name__)
 postrgre_db = PostgreSqlDB()
 
+
+# @log_io
 @tool
-def user_class_tool( 
+def user_class_tool( # default 값에 따라 받아오는 값이 달라짐 (ex) 6, 6학년 이런게 달라짐..
     user_name:Annotated[str, "학생(자녀)이름, default value is **샘플스**"],
     user_school:Annotated[str, "학교, default value is **샘플학교**"],
     user_grade:Annotated[int, "학년, default value is **7**"]
@@ -25,7 +31,7 @@ def user_class_tool(
     """
     try:
         # Parameters for the request
-        print(f"user_class_tool start user_name: {user_name}, user_school: {user_school}, user_grade: {user_grade}")
+        print(f"user_class_tool_start_user_name: {user_name}, user_school: {user_school}, user_grade: {user_grade}")
         class_datas = postrgre_db.fetch_all(db_sql.select_class_info, (user_name, user_school, user_grade))
 
         if class_datas is None:

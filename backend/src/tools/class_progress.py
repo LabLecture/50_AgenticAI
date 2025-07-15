@@ -1,7 +1,6 @@
 import logging
 from typing import Annotated
 
-from langchain_core.messages import HumanMessage
 from langchain_core.tools import tool
 
 # from db import PostgreSqlDB
@@ -30,7 +29,7 @@ def class_progress_tool(
     """
     try:
         # Parameters for the request
-        print(f"class_progress_tool start user_name: {user_name}, class_data: {class_data}, class_id: {class_id}")
+        print(f"class_progress_tool_start_user_name: {user_name}, class_data: {class_data}, class_id: {class_id}")
         class_progress_data = postrgre_db.fetch_one(db_sql.select_class_progress_info_02, (user_name, f"%{class_data}%", class_id))
 
         if class_progress_data is None:

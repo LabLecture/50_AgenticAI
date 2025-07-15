@@ -22,3 +22,7 @@ Always respond with a valid JSON object containing only the 'next' key and a sin
   * 필요 정보(required information): 학생 이름(user_name), 수업 이름(class_data), 수업 번호(class_id)
   * response class progress in a markdown format. 
   * 중요: 반드시 user_class_tool을 먼저 실행한 후에 사용해야 합니다.
+- **`link_provider`**: 학생(자녀)의 수업 상세정보 링크를 제공합니다. (Provide the link for the student's (child's) class details)
+  * 필요 정보(required information): 학생 이름(user_name), 수업 이름(class_data), 수업 번호(class_id)
+  * response with the specific class link.
+  * 중요: 반드시 user_class_tool을 먼저 실행한 후에 사용해야 합니다.
