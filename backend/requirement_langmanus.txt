@@ -1,0 +1,40 @@
+# FastAPI 관련
+fastapi[standard]
+uvicorn>=0.24.0
+python-dotenv>=1.0.0
+pydantic==2.9.2
+
+# LangChain 관련
+langchain==0.3.23
+langchain-community==0.3.5
+langchain-core==0.3.54
+langchain-openai>=0.0.2
+langchain-postgres==0.0.12
+langchain-text-splitters==0.3.1
+langchain-ollama==0.3.2
+
+# langgraph.graph.schema 관련
+langgraph==0.3.31
+langchain_experimental==0.3.4
+ipython==9.1.0
+
+# 문서 및 DB 관련
+pdf2image>=1.16.3
+pypdf>=5.1.0
+openpyxl==3.1.5
+pandas==2.2.3
+pgvector==0.2.5
+psycopg-binary==3.2.3
+databases==0.9.0
+
+# AI/ML 관련
+torch>=2.1.1
+transformers>=4.35.2
+sentence-transformers>=2.2.2
+
+# langmanus관련
+markdownify>=1.1.0
+readabilipy>=0.3.0
+browser-use>=0.1.45
+sse-starlette
+psycopg2-binary
