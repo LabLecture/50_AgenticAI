@@ -3,9 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from langchain_core.output_parsers import StrOutputParser   # 문자열 출력 파서
 from langchain_core.runnables import RunnablePassthrough    # 입력을 그대로 출력하는 러너블
-from langchain_openai import OpenAI, OpenAIEmbeddings       
-from langchain_huggingface import HuggingFaceEmbeddings     # HuggingFace 임베딩 모델
+# from langchain_openai import OpenAI, OpenAIEmbeddings       
 from langchain_ollama import ChatOllama   
+from langchain_huggingface import HuggingFaceEmbeddings     # HuggingFace 임베딩 모델
 from langchain_chroma import Chroma
 from src.utils import format_docs   # 검색된 문서들을 텍스트 형식으로 변환하는 유틸 함수
 from src.prompt import prompt       # 프롬프트 템플릿 
