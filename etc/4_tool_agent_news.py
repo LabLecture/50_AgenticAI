@@ -3,8 +3,8 @@ import requests
 from bs4 import BeautifulSoup
 from langchain_ollama import ChatOllama
 from langchain_core.tools import tool
-from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain.agents import create_tool_calling_agent, AgentExecutor
+from langchain_core.messages import SystemMessage, HumanMessage
+from langchain.agents import create_agent
 
 # 1. 도구(Tools) 정의
 @tool
@@ -46,37 +46,31 @@ tools = [naver_news_crawl, get_word_length]
 # 도구 호출 기능이 안정적인 mistral 모델을 사용합니다.
 llm = ChatOllama(model="mistral:latest", temperature=0)
 
-# 에이전트가 도구를 적절히 사용하도록 유도하는 프롬프트
-prompt = ChatPromptTemplate.from_messages(
-    [
-        (
-            "system",
-            "당신은 뉴스 분석 전문가입니다. 반드시 제공된 도구를 사용하여 정보를 얻으세요. "
-            "먼저 뉴스를 크롤링하고, 그 내용을 요약한 뒤, 원문과 요약문의 글자 수를 비교하여 보고하세요. "
-            "모든 답변은 한국어로 작성하세요."
-        ),
-        ("human", "{input}"),
-        MessagesPlaceholder(variable_name="agent_scratchpad"),
-    ]
-)
-
-# 3. 에이전트 및 실행기(Executor) 생성
-agent = create_tool_calling_agent(llm, tools, system_prompt=prompt)
-agent_executor = AgentExecutor(
-    agent=agent,
+# 3. 에이전트 생성 (제시해주신 예제 패턴 적용)
+news_agent = create_agent(
+    model=llm, # 혹은 바인딩된 llm
     tools=tools,
-    verbose=True, # 과정 출력
-    handle_parsing_errors=True, # 파싱 에러 자동 처리
+    system_prompt=SystemMessage(
+        content="당신은 뉴스 분석 전문가입니다. 제공된 도구를 사용해 뉴스를 크롤링하고, "
+                "그 내용을 요약한 뒤 원문과 요약문의 글자 수를 비교하여 보고하세요. "
+                "모든 답변은 한국어로 작성합니다."
+    )
 )
 
-# 4. 실행
+# 4. 에이전트 실행
 if __name__ == "__main__":
     news_url = "https://n.news.naver.com/article/607/0000002452"
     
-    query = f"다음 뉴스 기사를 요약해주고, 크롤링한 원문의 글자수와 요약한 결과의 글자수를 각각 알려줘: {news_url}"
-    
-    print("\n--- 에이전트 작업 시작 ---\n")
-    result = agent_executor.invoke({"input": query})
-    
-    print("\n--- 최종 결과 ---")
-    print(result["output"])
+    # 예제와 동일하게 {"messages": [HumanMessage(...)]} 구조로 호출합니다.
+    result = news_agent.invoke(
+        {
+            "messages": [
+                HumanMessage(content=f"이 뉴스 기사를 요약하고 요약한 내용과 글자수를 알려줘: {news_url}")
+            ]
+        }
+    )
+
+    # 결과 출력
+    # create_agent의 반환 방식에 따라 result["messages"][-1].content 등을 확인합니다.
+    print("\n" + "="*50)
+    print(result)
