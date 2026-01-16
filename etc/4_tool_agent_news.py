@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from langchain_ollama import ChatOllama
 from langchain_core.tools import tool
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain.agents import create_react_agent, AgentExecutor
+from langchain.agents import create_tool_calling_agent, AgentExecutor
 
 # 1. 도구(Tools) 정의
 @tool
@@ -61,7 +61,7 @@ prompt = ChatPromptTemplate.from_messages(
 )
 
 # 3. 에이전트 및 실행기(Executor) 생성
-agent = create_react_agent(llm, tools, prompt)
+agent = create_tool_calling_agent(llm, tools, system_prompt=prompt)
 agent_executor = AgentExecutor(
     agent=agent,
     tools=tools,
