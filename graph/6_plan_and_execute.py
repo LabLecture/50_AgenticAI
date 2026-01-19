@@ -12,8 +12,7 @@ from typing_extensions import TypedDict
 from langchain_community.tools.tavily_search import TavilySearchResults
 from langchain_core.tools import tool
 
-# llm = ChatOllama(model="mistral-small:latest", temperature=0, base_url = "http://192.168.1.203:11434")
-llm = ChatOllama(model="qwq:latest", temperature=0, base_url = "http://192.168.1.203:11434")
+llm = ChatOllama(model="qwen3:8b")
 
 from langchain_community.tools.tavily_search import TavilySearchResults
 tools = [TavilySearchResults(max_results=3)]

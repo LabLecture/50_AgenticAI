@@ -53,8 +53,7 @@ class Router(TypedDict):
     next: Literal[*options]
     # next: Literal["researcher", "coder", "FINISH"]
 
-# llm = ChatOllama(model="mistral-small:latest", temperature=0, base_url = "http://192.168.1.203:11434")
-llm = ChatOllama(model="qwq:latest", temperature=0, base_url = "http://192.168.1.203:11434")
+llm = ChatOllama(model="qwen3:8b")
 
 class State(MessagesState):
     next: str
@@ -109,8 +108,8 @@ builder.add_node("researcher", research_node)
 builder.add_node("coder", code_node)
 graph = builder.compile()
 
-from IPython.display import display, Image
-display(Image(graph.get_graph().draw_mermaid_png()))
+# from IPython.display import display, Image
+# display(Image(graph.get_graph().draw_mermaid_png()))
 
 for s in graph.stream(
     {

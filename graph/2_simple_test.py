@@ -57,7 +57,7 @@ def decide_mood(state) -> Literal["node_2", "node_3"]:
 
 
 # GRAPH 정의
-from IPython.display import Image, display
+# from IPython.display import Image, display
 from langgraph.graph import StateGraph, START, END
 
 # Build graph
@@ -76,7 +76,7 @@ builder.add_edge("node_3", END)
 graph = builder.compile()
 
 # View
-display(Image(graph.get_graph().draw_mermaid_png()))
+# display(Image(graph.get_graph().draw_mermaid_png()))
 
 # In[9]:
 

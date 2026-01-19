@@ -11,10 +11,10 @@ class State(TypedDict):
 
 
 # from langchain_openai import ChatOpenAI
-from langchain_community.chat_models import ChatOllama
+from langchain_ollama import ChatOllama
 
 # LLM 초기화
-llm = ChatOllama(model="mistral:latest", base_url="http://61.108.166.16:11434")
+llm = ChatOllama(model="mistral:latest", temperature=0)
 
 question = "서울의 유명한 맛집 TOP 10 추천해줘"
 llm.invoke(question)
@@ -34,8 +34,8 @@ graph_builder.add_edge("chatbot", END)      # 그래프에 엣지 추가
 graph = graph_builder.compile()             # 그래프 컴파일
 
 # 그래프 시각화
-from IPython.display import Image, display
-display(Image(graph.get_graph().draw_mermaid_png()))
+# from IPython.display import Image, display
+# display(Image(graph.get_graph().draw_mermaid_png()))
 
 question = "서울의 유명한 맛집 TOP 10 추천해줘"
 

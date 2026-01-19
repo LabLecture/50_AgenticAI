@@ -6,6 +6,7 @@ from langchain_tavily import TavilySearch
 
 tool = TavilySearch(max_results=3)      # 검색 도구 생성
 tools = [tool]                          # 도구 목록에 추가
+tool.invoke({"query": "한국의 다음 대통령 선거 일정은 언제야?"})
 
 from typing import Annotated
 from typing_extensions import TypedDict
@@ -15,10 +16,12 @@ from langgraph.graph.message import add_messages
 class State(TypedDict):
     messages: Annotated[list, add_messages]
 
-from langchain_openai import ChatOpenAI
+from langchain_ollama import ChatOllama
 
 # LLM 초기화
-llm = ChatOpenAI(model="gpt-4o-mini")
+# llm = ChatOllama(model="mistral:latest", temperature=0)
+llm = ChatOllama(model="qwen3:8b")
+
 # LLM 에 도구 바인딩
 llm_with_tools = llm.bind_tools(tools)      # ChatOpenAI 에만 적용됨.
 
@@ -99,7 +102,7 @@ graph_builder.add_edge("tools", "chatbot")  # tools > chatbot
 graph_builder.add_edge(START, "chatbot")    # START > chatbot
 graph = graph_builder.compile()             # 그래프 컴파일
 
-question = "한국의 다음 대통령 선거"
+question = "한국의 다음 대통령 선거 일정은 언제야?"
 
 for event in graph.stream({"messages": [("user", question)]}):
     for key, value in event.items():
