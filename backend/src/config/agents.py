@@ -11,4 +11,5 @@ AGENT_LLM_MAP: dict[str, LLMType] = {
     "supervisor"        : "supervisor",      # 
     "user_class"        : "basic",      # 
     "class_progress"    : "basic",      # 
+    "link_provider"     : "basic",      # 
 }

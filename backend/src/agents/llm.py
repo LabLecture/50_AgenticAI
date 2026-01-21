@@ -71,14 +71,14 @@ def get_llm_by_type(llm_type: LLMType) -> ChatOpenAI | ChatDeepSeek:
     """
     if llm_type in _llm_cache:
         return _llm_cache[llm_type]
-    # model_name = "qwen2.5:14b"      # 이 정보가 필요합니다. 감사합니다!
+    # model_name = "qwen2.5:14b"      # 
     # model_name = "cogito:14b"       # user_class_tool start user_name: 사형로, user_school: 찴분리당, user_grade: 6
     # model_name = "deepseek-r1:14b"  # English
     # model_name = "mistral:latest"   # An error occurred: 'next'
     # model_name = "mistral-nemo:12b" # An error occurred: 'next'
-    # model_name = "qwen3:14b"  # 서버 멈춤 An error occurred: 'next'
-    model_name = "mistral-small:latest" 
-    base_url = "http://222.234.38.96:11434"
+    model_name = "qwen3:8b"         # 서버 멈춤 An error occurred: 'next'
+    # model_name = "mistral-small:latest" 
+    base_url = "http://localhost:11434"
     if llm_type == "reasoning":
         # llm = create_deepseek_llm(
         #     model=REASONING_MODEL,
