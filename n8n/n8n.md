@@ -103,4 +103,3 @@ docker exec -it bnh_poc_n8n n8n export:workflow --all --output=/data/bnh/n8n/.n8
 
 2. 자격 증명(Credentials) 전체 내보내기
 docker exec -it bnh_poc_n8n n8n export:credentials --all --output=/data/bnh/n8n/.n8n/creds_export.json
-결과 확인: 실행 후 볼륨 폴더(또는 컨테이너 내부)에 workflows_export.json과 creds_export.json 파일이 생성됩니다.
