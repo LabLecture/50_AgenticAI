@@ -12,7 +12,12 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 ## 3. Chocolatey (패키지 매니저) windows 설치
 Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
 
-## 4. Google Gemini API 발급 (기존에 했음)
+## 4. 그전에 Git (버전 관리 및 소스 다운로드) 
+sudo apt update
+sudo apt install git -y
+
+## 5. Google Gemini API 발급 (기존에 했음)
 https://aistudio.google.com/u/1/prompts/new_chat
 
-## 5. OpenClaw 설치 단계 (windows)
+## 6. OpenClaw 설치 단계 (Linux)
+
