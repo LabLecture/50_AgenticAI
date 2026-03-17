@@ -79,6 +79,7 @@
  - (venv) PS C:\git\king\50_AgenticAI\adk> pip install litellm>=1.75.5
  - (venv) PS C:\git\king\50_AgenticAI\adk> pip install "google-adk[extensions]" 
  - .env 수정 
+    OPENAI_API_KEY=sk-or-v1-45047998XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX220a05821fa
  - agent.py 수정 
     from google.adk.models.lite_llm import LiteLlm
     root_agent = Agent(
