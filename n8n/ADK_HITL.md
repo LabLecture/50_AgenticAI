@@ -76,7 +76,6 @@
     You exceeded your current quota... 
 
 ## 실습 3 : simple multi agent (google.github.io/adk-docs) & OpenRouter
- - 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
  - (venv) PS C:\git\king\50_AgenticAI\adk> pip install litellm>=1.75.5
  - (venv) PS C:\git\king\50_AgenticAI\adk> pip install "google-adk[extensions]" 
  - .env 수정 
