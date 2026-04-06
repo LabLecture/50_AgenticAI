@@ -7,3 +7,4 @@ frontend/node_modules
 /m_asset_poc/venv
 backend/.env
 *.pyc
+/adk
