@@ -92,6 +92,8 @@
 
 ## 실습 5 : Google ADK (Session/Memory)
 ## 실습 6 : Google ADK (HITL)
+ - https://wikidocs.net/318934 
+ 
 
 
 ## 실습 7 : 숙제형 실습 [학습지_수업진도체크]
