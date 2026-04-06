@@ -8,3 +8,5 @@ frontend/node_modules
 backend/.env
 *.pyc
 /adk
+n8n/.env
+n8n/.env copy
