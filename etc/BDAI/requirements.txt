@@ -1,0 +1,17 @@
+# ─ Streamlit 실습 (st01~st05) ────────────────
+streamlit==1.57.0
+openai==2.36.0
+pymupdf==1.27.2.3
+pandas==2.2.3
+
+# ─ RAG 실습 (rag01~rag07) ────────────────────
+langchain==1.2.18
+langchain-classic==1.0.7
+langchain-community==0.4.1
+langchain-openai==1.2.1
+langchain-huggingface==1.2.2
+langchain-cohere==0.5.1
+langchain-chroma==1.1.0
+chromadb==1.5.9
+rank-bm25==0.2.2
+sentence-transformers==5.4.1
