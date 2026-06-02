@@ -53,7 +53,7 @@ def main() -> None:
     )
     compression_retriever = ContextualCompressionRetriever(
         base_compressor=reranker,
-        base_retriever=ensemble,
+        base_retriever=ensemble,    # 1차 검색 결과
     )
 
     final_docs = compression_retriever.invoke(query)

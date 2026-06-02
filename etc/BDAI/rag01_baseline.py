@@ -13,7 +13,6 @@ from _common_rag import (
     llm_unavailable_notice,
 )
 
-
 def main() -> None:
     query = "키워드와 의미를 동시에 잘 잡는 검색 방법은?"
 

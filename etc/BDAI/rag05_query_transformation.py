@@ -30,9 +30,17 @@ def main() -> None:
 
     query = "RAG 검색 품질 올리려면?"
 
-    # 내부 동작을 보기 위해 langchain.retrievers.multi_query 로거 켜기
-    logging.basicConfig(level=logging.INFO)
-    logging.getLogger("langchain_classic.retrievers.multi_query").setLevel(logging.INFO)
+    # MultiQuery 가 생성한 변형 질의 만 보기 위해 해당 모듈 로거만 INFO 로 켠다.
+    # ⚠️ logging.basicConfig(level=INFO) 를 쓰면 root logger 가 INFO 가 되어
+    #    httpx / openai 등 다른 라이브러리의 INFO 메시지가 모두 콘솔로 쏟아진다.
+    #    그래서 root 는 건드리지 않고, MultiQuery 로거에 별도 handler 를 붙여 격리.
+    mq_logger = logging.getLogger("langchain_classic.retrievers.multi_query")
+    mq_logger.setLevel(logging.INFO)
+    if not mq_logger.handlers:
+        handler = logging.StreamHandler()
+        handler.setFormatter(logging.Formatter("[MultiQuery] %(message)s"))
+        mq_logger.addHandler(handler)
+        mq_logger.propagate = False  # root 로 전파해 중복/혼합 출력 되는 것 방지
 
     # ── 1) 베이스 retriever ─────────────────────────
     vectorstore = get_vectorstore(SAMPLE_DOCS)

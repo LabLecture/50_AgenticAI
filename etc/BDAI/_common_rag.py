@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import os
 import sys
+from pathlib import Path
 from typing import Iterable
 
 # Windows cp949 대비
@@ -21,6 +22,16 @@ try:
     sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 except Exception:
+    pass
+
+# .env 자동 로드 — BDAI/.env 의 OPENROUTER_API_KEY / OPENAI_API_KEY / COHERE_API_KEY 등을
+# os.environ 에 주입한다. python-dotenv 가 없는 환경에서도 죽지 않게 graceful 처리.
+# 이미 환경변수가 설정돼 있으면 override 하지 않음 (`override=False` 가 기본값).
+try:
+    from dotenv import load_dotenv
+
+    load_dotenv(Path(__file__).resolve().parent / ".env")
+except ImportError:
     pass
 
 from langchain_core.documents import Document
@@ -151,21 +162,53 @@ def get_vectorstore(docs: Iterable[Document] | None = None):
 # ---------------------------------------------------------------------------
 # LLM (OpenRouter / OpenAI 호환)
 # ---------------------------------------------------------------------------
-def get_llm(model: str = "openai/gpt-4o-mini", temperature: float = 0):
-    """OPENROUTER_API_KEY 또는 OPENAI_API_KEY 가 있으면 ChatOpenAI 반환, 없으면 None."""
+def get_llm(model: str | None = None, temperature: float = 0):
+    """OPENROUTER_API_KEY 또는 OPENAI_API_KEY 가 있으면 ChatOpenAI 반환, 없으면 None.
+
+    모델 선택 우선순위:
+      1) 함수 인자 model
+      2) 환경변수 OPENROUTER_MODEL (또는 OpenAI 직접 사용 시 OPENAI_MODEL)
+      3) 기본값 — OpenRouter 의 비교적 안정적인 free 모델
+
+    참고: OpenRouter free 모델은 upstream provider 의 quota 를 공유하므로 시점에 따라
+    429 Too Many Requests 가 자주 발생한다. .env 의 `OPENROUTER_MODEL` 로 다른 free
+    모델로 갈아탈 수 있게 구성. 또한 ChatOpenAI 의 max_retries 로 일시적 429/5xx 를
+    자동 재시도.
+    """
     from langchain_openai import ChatOpenAI
 
     if api_key := os.getenv("OPENROUTER_API_KEY"):
+        # 기본 모델: openai/gpt-oss-20b:free
+        # — 강의 실습 시점에 OpenRouter 상에서 가장 안정적으로 응답하던 free 모델.
+        # — google/gemma-4-31b-it:free / meta-llama/llama-3.3-70b-instruct:free 등
+        #   인기 free 모델은 업스트림 provider 의 공유 quota 가 자주 소진돼 429 가 잦음.
+        # 다른 모델을 쓰려면 .env 에서 OPENROUTER_MODEL=... 로 덮어쓰기:
+        #   qwen/qwen3-next-80b-a3b-instruct:free, openai/gpt-oss-120b:free,
+        #   z-ai/glm-4.5-air:free, google/gemma-4-31b-it:free 등.
+        chosen = (
+            model
+            or os.getenv("OPENROUTER_MODEL")
+            or "openai/gpt-oss-20b:free"
+        )
         return ChatOpenAI(
-            model=model,
+            model=chosen,
             temperature=temperature,
             api_key=api_key,
             base_url="https://openrouter.ai/api/v1",
+            max_retries=3,   # 일시적 429/5xx 는 exponential backoff 로 자동 재시도
+            timeout=60,
         )
     if api_key := os.getenv("OPENAI_API_KEY"):
+        chosen = model or os.getenv("OPENAI_MODEL", "gpt-4o-mini")
         # OpenAI 직접 호출 시 모델명에서 provider 접두어 제거
-        clean_model = model.split("/", 1)[-1]
-        return ChatOpenAI(model=clean_model, temperature=temperature, api_key=api_key)
+        clean_model = chosen.split("/", 1)[-1]
+        return ChatOpenAI(
+            model=clean_model,
+            temperature=temperature,
+            api_key=api_key,
+            max_retries=3,
+            timeout=60,
+        )
     return None
 
 
