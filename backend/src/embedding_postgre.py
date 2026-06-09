@@ -8,7 +8,10 @@ from dotenv import load_dotenv
 
 from llama_index.core.schema import TextNode, Document      # postgre vector store
 from llama_index.core.node_parser import SentenceSplitter
-from llama_parse import LlamaParse
+try:
+    from llama_parse import LlamaParse   # PDF 파싱용(클라우드) — 미설치/키없음이면 xlsx 만 처리
+except ImportError:
+    LlamaParse = None
 from llama_index.vector_stores.postgres import PGVectorStore
 
 import pandas as pd
@@ -71,7 +74,7 @@ def load_files(input_dir):
 
     # 디렉토리 내의 모든 파일 경로를 리스트로 수집
     file_paths = []
-    for ext in [".pdf", ".xlsx", ".xls"]:  # 처리하고자 하는 파일 확장자
+    for ext in [".xlsx", ".xls"]:  # step3: 법률 사건 xlsx 적재 (PDF 는 LlamaParse 필요라 제외)
         file_paths.extend(list(input_dir.glob(f"*{ext}")))  # glob 잡아냄.
     
     if not file_paths:
@@ -79,18 +82,18 @@ def load_files(input_dir):
         
     print(f"Found files: {[f.name for f in file_paths]}")
     
-    parser = LlamaParse(
-        api_key="llx-JItT6ZbUs6c05fS0nNr3luAD13gxvfPouCrnwmNbZlv2nblg", # llama_index
-        result_type="markdown",                     # "markdown" and "text" are available
-        verbose=True,
-    )
-        
     excel_reader = ExcelReader()
-    file_extractor = {              
-        ".pdf": parser,
+    file_extractor = {
         ".xlsx": excel_reader,
-        ".xls": excel_reader
+        ".xls": excel_reader,
     }
+    # PDF 는 LlamaParse(클라우드) 가 있어야 함 — 설치/키 있을 때만 사용. (하드코딩 키 제거 → 환경변수)
+    if LlamaParse is not None:
+        file_extractor[".pdf"] = LlamaParse(
+            api_key=os.getenv("LLAMA_CLOUD_API_KEY", ""),
+            result_type="markdown",
+            verbose=True,
+        )
     reader = SimpleDirectoryReader(                 # 다양한 형식 문서 읽기
         input_files=[str(p) for p in file_paths],   # Path 객체를 문자열로 변환
         file_extractor=file_extractor
@@ -115,11 +118,11 @@ def is_doc(obj):
 def create_index(docs, schema_name="public", table_name="tmp"):
     """PostgreSQL 벡터 저장소 생성 및 문서 인덱싱"""
     vector_store = PGVectorStore.from_params(   # PostgreSQL 벡터 저장소 설정
-        database    = "chatbot",
-        host        = "61.108.166.16",
-        password    = "chatbot01",
-        port        = "5432",
-        user        = "chatbot01",
+        database    = os.getenv("POSTGRES_DB", "hycu_dropout"),     # [변경] 로컬 postgres(.env)
+        host        = os.getenv("POSTGRES_HOST", "localhost"),
+        password    = os.getenv("POSTGRES_PASSWORD"),
+        port        = os.getenv("DB_PORT", "5432"),
+        user        = os.getenv("POSTGRES_USER"),
         schema_name = schema_name,
         table_name  = table_name,
         embed_dim   = 384,

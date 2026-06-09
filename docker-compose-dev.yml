@@ -8,7 +8,8 @@ services:
     env_file: 
       - ./backend/.env
     ports:
-      - "8000:8000"
+      # step3: 8002 로 통일 (python main.py / 프론트 localhost:8002)
+      - "8002:8002"
     networks:
       - app_network
     environment:
