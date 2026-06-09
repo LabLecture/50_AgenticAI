@@ -137,3 +137,12 @@ async def chat(request: Request):
     except Exception as e:
         print(e)
         return {"answer": str(e)}
+
+
+# 직접 실행 진입점 — `python main.py` 로 서버를 기동한다.
+#   (이게 없으면 모듈만 로드되고 서버가 안 떠서 그냥 종료됨)
+#   step2 프론트(Chat.js)가 http://localhost:8002 를 호출하므로 포트는 8002.
+#   hot-reload 가 필요하면 CLI 로:  uvicorn main:app --reload --host 0.0.0.0 --port 8002
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8002)

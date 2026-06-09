@@ -8,7 +8,8 @@ services:
     env_file: 
       - ./backend/.env
     ports:
-      - "8000:8000"
+      # step2: 호스트 8000 충돌 회피 + 프론트가 :8002 호출 → 8002 로 노출
+      - "8002:8002"
     networks:
       - app_network
     environment:
