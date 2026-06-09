@@ -1,0 +1,6 @@
+# graphrag 별도 venv + 생성물 (재생성 가능 — commit 안 함)
+venv/
+output/
+cache/
+logs/
+.env

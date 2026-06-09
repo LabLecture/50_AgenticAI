@@ -1,0 +1,22 @@
+{
+  "name": "supp08-chat-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "@chatscope/chat-ui-kit-react": "^2.0.3",
+    "@chatscope/chat-ui-kit-styles": "^1.4.0",
+    "@microsoft/fetch-event-source": "^2.0.1",
+    "axios": "^1.7.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-scripts": "5.0.1"
+  },
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build"
+  },
+  "browserslist": {
+    "production": [">0.2%", "not dead", "not op_mini all"],
+    "development": ["last 1 chrome version", "last 1 firefox version"]
+  }
+}

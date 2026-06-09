@@ -1,0 +1,7 @@
+Anthropic is an AI safety company founded in 2021 by former OpenAI researchers, including Dario Amodei and Daniela Amodei. The company is best known for Claude, a family of large language models designed to be helpful, honest, and harmless.
+
+In 2023, Amazon announced a major partnership with Anthropic and invested billions of dollars. As part of the deal, Anthropic agreed to use Amazon Web Services (AWS) as its primary cloud provider and to train its models on AWS Trainium chips. Amazon also made Claude available to enterprise customers through Amazon Bedrock, a managed service for foundation models.
+
+Google has also invested in Anthropic, making it one of the few AI startups backed by multiple cloud giants. This reflects a broader trend in which large technology companies compete to align themselves with leading AI labs.
+
+The relationship between Anthropic and Amazon illustrates a common pattern in the AI industry: model developers need vast computing resources, while cloud providers want exclusive access to cutting-edge models for their customers. These partnerships shape how advanced AI capabilities reach businesses around the world.

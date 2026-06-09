@@ -1,0 +1,27 @@
+# [6교시] backend(FastAPI) + frontend(React) 를 한 번에 띄운다.
+#   docker-compose up --build
+# 50_AgenticAI/docker-compose-dev.yml 의 backend_dev + react_dev 와 같은 구조
+# (50_AgenticAI 는 LLM 이 로컬 Ollama 라 ollama_dev 가 하나 더 있을 뿐, 우리는 외부 MLAPI 사용).
+services:
+  backend:
+    build: ./backend
+    # MLAPI 키는 repo 루트 .env 에서 주입 (compose 파일 기준 ../../.env)
+    env_file:
+      - ../../.env
+    ports:
+      # 호스트 8000 이 다른 프로젝트와 충돌 → 호스트만 8001 로 변경 (컨테이너 내부는 그대로 8000)
+      - "8001:8000"
+
+  frontend:
+    build: ./frontend
+    environment:
+      # 컨테이너 안에서 빌드 시 주입될 백엔드 주소 (호스트 8001 로 노출되므로 8001)
+      REACT_APP_API_URL: http://localhost:8001
+      CI: "false"
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+# (운영형 확장) nginx 서비스를 추가해 frontend 빌드를 서빙하고 /api 를 backend 로 프록시하면
+# CORS 없이 같은 origin 으로 묶을 수 있다 — nginx.conf 참고.

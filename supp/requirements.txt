@@ -1,0 +1,87 @@
+# supp/ — Agentic RAG (03) + GraphRAG/Neo4j (04) 실습 의존성
+#
+# 적용 범위:
+#   supp_03_agentic_rag.md     — 01_naive_vs_agentic_pseudo.py ~ 13_react_rag_agent.py
+#   supp_04_graphrag_neo4j.md  — 01_neo4j_docker.sh / 02_connect.py ~ 15_movie_text2cypher.py
+# 환경: Python 3.11 + venv (이 폴더의 venv/ 에 설치)
+#
+# 설치:
+#   cd supp
+#   python -m venv venv
+#   .\venv\Scripts\Activate.ps1     # Windows
+#   pip install -r requirements.txt
+#
+# 키 설정 (.env):
+#   OPENROUTER_API_KEY=sk-or-v1-...
+#   OPENROUTER_MODEL=openai/gpt-oss-20b:free    # (선택) free 모델 덮어쓰기
+
+# --- LangGraph / LangChain 1.x 스택 ---
+langgraph==1.2.2
+langchain==1.3.2
+langchain-classic==1.0.7
+langchain-core==1.4.0
+langchain-community==0.4.2
+langchain-openai==1.2.2
+langchain-text-splitters==1.1.2
+
+# --- 벡터스토어 / 임베딩 ---
+# 임베딩은 로컬 HF (intfloat/multilingual-e5-small ~470MB, 최초 호출 시 자동 다운로드).
+langchain-chroma==1.1.0
+langchain-huggingface==1.2.2
+sentence-transformers==5.5.1
+chromadb==1.5.9
+
+# --- 웹 검색 (Tavily 키 없이도 동작) ---
+duckduckgo-search==8.1.1
+
+# --- 키 관리 ---
+python-dotenv==1.2.2
+
+# --- 스키마 (구조화 출력) ---
+pydantic==2.13.4
+
+# --- GraphRAG / Neo4j (supp_04) ---
+# Neo4j 컨테이너는 별도 (Docker — supp_04 의 01_neo4j_docker.sh 참고).
+# langchain-experimental 의 LLMGraphTransformer 는 free 모델 호환을 위해
+# ignore_tool_usage=True 옵션과 함께 사용 (supp_04 §0.5 참조).
+langchain-neo4j==0.9.0
+neo4j==6.2.0
+neo4j-graphrag==1.17.0    # 2.6 — Neo4j GenAI Text2Cypher (15_movie_text2cypher.py)
+langchain-experimental==0.4.2
+json-repair==0.59.10
+
+# --- 멀티모달 챗봇 (supp_05) ---
+# VLM: OpenRouter free vision 모델 (.env 의 OPENROUTER_VISION_MODEL).
+#   기본: google/gemma-4-31b-it:free (image input 지원 확인됨)
+# CLIP 임베딩: open-clip-torch (ViT-B-32 ~150MB, 첫 호출 시 자동 다운로드)
+# STT: faster-whisper (로컬, OpenAI 키 불필요. base 모델 ~140MB)
+# TTS: edge-tts (Microsoft Edge 음성, 무료, 한국어 신경망 보이스 다수)
+# PDF: PyMuPDF (fitz) — Windows 에서 poppler 같은 시스템 의존성 불필요
+# UI:  gradio 6.x — multimodal=True 로 파일 업로드 + 텍스트 입력 동시 처리
+gradio==6.15.2
+open-clip-torch==3.3.0
+faster-whisper==1.2.1
+edge-tts==7.2.8
+pymupdf==1.27.2.3
+
+# --- RAG/LLM 평가 (supp_06) ---
+# Ragas 0.4.3 가 구버전 langchain-community 의 vertexai 모듈을 import 시도 → 호환 shim 필요.
+# langchain-google-vertexai 를 함께 설치한 뒤 site-packages/langchain_community/chat_models/
+# 에 vertexai.py 파일 (1 줄: `from langchain_google_vertexai import ChatVertexAI`) 을 만들어 둠.
+# DeepEval 의 심판 LLM 은 OPENAI_API_KEY 가 기본이지만, _judges.py 의 DeepEvalBaseLLM
+# 서브클래스로 OpenRouter free 모델로 우회.
+ragas==0.4.3
+deepeval==4.0.5
+langchain-google-vertexai==3.2.3
+datasets==4.8.5
+rapidfuzz==3.14.5
+
+# --- Google ADK (supp_07) ---
+# OpenRouter free 모델은 google-adk[extensions] 의 LiteLlm 으로 wrap.
+# 운영 시 Cloud Run / Vertex AI Agent Engine 배포는 별도 gcloud auth 필요.
+google-adk[extensions]==2.1.0
+litellm==1.83.14
+
+# --- grpcio 1.71 고정 (supp_06 Windows DLL 호환) ---
+# grpcio 1.81 빌드가 Windows 보안 정책에 막혀 DLL 로드 실패하는 사례 → 1.71.0 안정.
+grpcio==1.71.0

@@ -1,0 +1,14 @@
+venv/
+__pycache__/
+*.pyc
+
+# API 키 / 비밀값 — 절대 commit 금지
+.env
+.env.*
+!.env.example
+
+# 그래프 시각화 산출물 (재생성 가능)
+agentic_rag_graph.png
+
+# DeepEval �ڵ� ���� �ڷ���Ʈ��
+.deepeval/
