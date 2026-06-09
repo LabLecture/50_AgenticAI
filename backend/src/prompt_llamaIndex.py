@@ -14,10 +14,10 @@ AI assistant will not invent anything that is not drawn directly from the contex
 AI assistant will answer in Korean.
 
 CONTEXT START BLOCK
-{context}
+{context_str}
 CONTEXT END BLOCK
 ==========================================================================================
-human: {question}
+human: {query_str}
 AI assistant: 
 """
 # ----------------------------------------------------------------------------------------

@@ -11,6 +11,7 @@ from pydantic import BaseModel
 from llama_index.core import VectorStoreIndex, PromptTemplate, Settings
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.llms.ollama import Ollama
+from llama_index.llms.openrouter import OpenRouter   # [추가] OpenRouter (OpenAI 호환) — main 브랜치와 동일 방식
 from llama_index.core import StorageContext
 from llama_index.vector_stores.chroma import ChromaVectorStore
 from llama_index.core import Settings
@@ -37,7 +38,15 @@ app = FastAPI()
 # llm = ChatOllama(model="mistral:latest", base_url="http://ollama_dev:11434")
 # llm = ChatOllama(model="mistral:latest", base_url=os.getenv("OLLAMA_BASE_URL"))
 # llm = Ollama(model="mistral:latest", temperature=0.1, request_timeout=360000)
-llm = Ollama(model="mistral:latest", base_url="http://192.168.1.209:11435", temperature=0.1, request_timeout=360000)
+# llm = Ollama(model="mistral:latest", base_url="http://192.168.1.209:11435", temperature=0.1, request_timeout=360000)  # 기존: 사내 Ollama(LAN IP) → 외부 접속 불가
+# ── [변경] main 브랜치처럼 OpenRouter 사용 (OpenAI 호환 게이트웨이). 키는 .env 의 OPENROUTER_API_KEY ──
+llm = OpenRouter(
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    model="openai/gpt-oss-20b:free",
+    max_tokens=512,
+    temperature=0.2,
+    context_window=8192,
+)
 # llm = Ollama(model="mistral:latest", base_url=os.getenv("OLLAMA_BASE_URL"))
 # llm = Ollama(model="llama-3.2-Korean-Bllossom-3B:latest", base_url="http://192.168.1.209:11435", temperature=0.1, request_timeout=360000)     # 건영 10/7 수정
 
@@ -105,8 +114,8 @@ query_engine = index.as_query_engine(
 )
 
 qa_prompt_key = "response_synthesizer:text_qa_template"
-# query_engine.update_prompts({qa_prompt_key: prompt})
-query_engine.update_prompts(prompt)
+# query_engine.update_prompts(prompt)   # 기존: dict 가 아니라 PromptTemplate 만 넘겨서 적용 안 됨
+query_engine.update_prompts({qa_prompt_key: prompt})
 
 @app.post("/chat/")
 # async def chat(query: UseQuery):
@@ -123,7 +132,8 @@ async def chat(request: Request):
 
 
         # answer = rag_chain.invoke(query.question).strip()
-        return {"answer": answer}
+        # 프론트(Chat.js)가 response.data.answer.response 를 읽으므로 {"response": 텍스트} 형태로 반환
+        return {"answer": {"response": str(answer)}}
     except Exception as e:
         print(e)
         return {"answer": str(e)}
