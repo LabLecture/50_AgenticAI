@@ -51,7 +51,7 @@ const Chat = () => {
 
               // [B] 백엔드 서버(Localhost 8000번 포트)로 메시지 전송
               // 사용자의 질문을 'question'이라는 키에 담아 POST 요청을 전송
-              const response = await axios.post("http://localhost:8000/chat", {
+              const response = await axios.post("http://localhost:8002/chat", {
                 question: textContent,
               });
 

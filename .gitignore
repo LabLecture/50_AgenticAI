@@ -10,3 +10,4 @@ backend/.env
 /adk
 n8n/.env
 n8n/.env copy
+backend/.env
