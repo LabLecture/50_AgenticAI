@@ -11,3 +11,4 @@ backend/.env
 n8n/.env
 n8n/.env copy
 backend/.env
+.env
