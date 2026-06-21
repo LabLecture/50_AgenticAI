@@ -1,0 +1,252 @@
+{
+  "doc01": {
+    "doc_date": "2025-11-20",
+    "contract_id": "CT-2025-017",
+    "sender_person": null,
+    "receiver_person": null,
+    "signers": [
+      "김재현",
+      "박성호"
+    ],
+    "persons": [
+      {
+        "name": "김재현",
+        "company": "다온소프트",
+        "title": "대표이사"
+      },
+      {
+        "name": "박성호",
+        "company": "한빛유통",
+        "title": "대표이사"
+      }
+    ],
+    "events": [
+      {
+        "type": "계약체결",
+        "date": "2025-11-20",
+        "amount": 120000000,
+        "from_company": "다온소프트",
+        "to_company": "한빛유통",
+        "summary": "다온소프트와 한빛유통이 재고관리시스템 구축 계약 체결, 총 계약금액 1억 2천만 원"
+      }
+    ]
+  },
+  "doc02": {
+    "doc_date": "2025-12-01",
+    "contract_id": "CT-2025-017",
+    "sender_person": null,
+    "receiver_person": null,
+    "signers": [],
+    "persons": [],
+    "events": [
+      {
+        "type": "지급",
+        "date": "2025-12-01",
+        "amount": 36000000,
+        "from_company": "한빛유통",
+        "to_company": "다온소프트",
+        "summary": "한빛유통이 다온소프트에 계약금 36,000,000원을 입금함"
+      }
+    ]
+  },
+  "doc03": {
+    "doc_date": "2026-03-05",
+    "contract_id": "CT-2025-017",
+    "sender_person": "김재현",
+    "receiver_person": "박성호",
+    "signers": [],
+    "persons": [
+      {
+        "name": "김재현",
+        "company": "다온소프트",
+        "title": "대표이사"
+      },
+      {
+        "name": "박성호",
+        "company": "한빛유통",
+        "title": "대표이사"
+      }
+    ],
+    "events": [
+      {
+        "type": "검수",
+        "date": "2026-02-10",
+        "amount": null,
+        "from_company": "한빛유통",
+        "to_company": null,
+        "summary": "1차 검수 완료"
+      },
+      {
+        "type": "내용증명",
+        "date": "2026-03-05",
+        "amount": null,
+        "from_company": "다온소프트",
+        "to_company": "한빛유통",
+        "summary": "중도금 지급 촉구 내용증명 발송"
+      }
+    ]
+  },
+  "doc04": {
+    "doc_date": "2026-03-18",
+    "contract_id": null,
+    "sender_person": "이수진",
+    "receiver_person": "김재현",
+    "signers": [],
+    "persons": [
+      {
+        "name": "이수진",
+        "company": "한빛유통",
+        "title": "구매팀장"
+      },
+      {
+        "name": "김재현",
+        "company": "다온소프트",
+        "title": "대표이사"
+      }
+    ],
+    "events": [
+      {
+        "type": "회신",
+        "date": "2026-03-18",
+        "amount": null,
+        "from_company": "한빛유통",
+        "to_company": "다온소프트",
+        "summary": "2026년 3월 5일자 내용증명에 대한 회신으로, 재고 수량 동기화 오류 및 야간 배치 작업 실패 하자를 지적하고 하자 보수 완료까지 중도금 48,000,000원 지급 보류를 통보함"
+      }
+    ]
+  },
+  "doc05": {
+    "doc_date": "2026-03-25",
+    "contract_id": "CT-2025-017",
+    "sender_person": "김재현",
+    "receiver_person": "박성호",
+    "signers": [],
+    "persons": [
+      {
+        "name": "김재현",
+        "company": "다온소프트",
+        "title": "대표이사"
+      },
+      {
+        "name": "박성호",
+        "company": "한빛유통",
+        "title": "대표이사"
+      }
+    ],
+    "events": [
+      {
+        "type": "회신",
+        "date": "2026-03-18",
+        "amount": null,
+        "from_company": "한빛유통",
+        "to_company": "다온소프트",
+        "summary": "한빛유통이 다온소프트에 하자 관련 회신을 보냄"
+      },
+      {
+        "type": "하자보수",
+        "date": "2026-03-24",
+        "amount": null,
+        "from_company": "다온소프트",
+        "to_company": "한빛유통",
+        "summary": "다온소프트가 재고 수량 동기화 오류 및 야간 배치 작업 실패에 대한 패치 배포 및 시험 운영 완료"
+      },
+      {
+        "type": "내용증명",
+        "date": "2026-03-25",
+        "amount": null,
+        "from_company": "다온소프트",
+        "to_company": "한빛유통",
+        "summary": "다온소프트가 한빛유통에 하자보수 완료 통지 및 중도금 48,000,000원 지급 재촉구 내용증명 발송"
+      }
+    ]
+  },
+  "doc06": {
+    "doc_date": "2026-04-08",
+    "contract_id": "CT-2025-017",
+    "sender_person": null,
+    "receiver_person": null,
+    "signers": [],
+    "persons": [],
+    "events": [
+      {
+        "type": "지급",
+        "date": "2026-04-08",
+        "amount": 20000000,
+        "from_company": "한빛유통",
+        "to_company": "다온소프트",
+        "summary": "CT-2025-017 중도금 일부 20,000,000원 입금, 잔여 중도금 28,000,000원 미지급"
+      }
+    ]
+  },
+  "doc07": {
+    "doc_date": "2026-04-22",
+    "contract_id": "CT-2025-017",
+    "sender_person": "김재현",
+    "receiver_person": "박성호",
+    "signers": [],
+    "persons": [
+      {
+        "name": "김재현",
+        "company": "다온소프트",
+        "title": "대표이사"
+      },
+      {
+        "name": "박성호",
+        "company": "한빛유통",
+        "title": "대표이사"
+      },
+      {
+        "name": "오세영",
+        "company": "법무법인 정현",
+        "title": "변호사"
+      }
+    ],
+    "events": [
+      {
+        "type": "지급",
+        "date": "2026-04-08",
+        "amount": 20000000,
+        "from_company": "한빛유통",
+        "to_company": "다온소프트",
+        "summary": "중도금 중 20,000,000원 입금"
+      },
+      {
+        "type": "내용증명",
+        "date": "2026-04-22",
+        "amount": null,
+        "from_company": "다온소프트",
+        "to_company": "한빛유통",
+        "summary": "잔여 중도금 28,000,000원 지급 최고 및 계약해지 예고 내용증명 발송"
+      }
+    ]
+  },
+  "doc08": {
+    "doc_date": "2026-05-02",
+    "contract_id": null,
+    "sender_person": "박성호",
+    "receiver_person": "김재현",
+    "signers": [],
+    "persons": [
+      {
+        "name": "박성호",
+        "company": "한빛유통",
+        "title": "대표이사"
+      },
+      {
+        "name": "김재현",
+        "company": "다온소프트",
+        "title": "대표이사"
+      }
+    ],
+    "events": [
+      {
+        "type": "회신",
+        "date": "2026-05-02",
+        "amount": null,
+        "from_company": "한빛유통",
+        "to_company": "다온소프트",
+        "summary": "잔여 대금 분할 지급 제안에 대한 회신"
+      }
+    ]
+  }
+}
