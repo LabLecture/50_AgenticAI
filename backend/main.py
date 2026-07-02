@@ -32,7 +32,8 @@ app = FastAPI()
 # ── [변경] main/step2 처럼 OpenRouter 사용 (키는 .env 의 OPENROUTER_API_KEY) ──
 llm = OpenRouter(
     api_key=os.getenv("OPENROUTER_API_KEY"),
-    model="openai/gpt-oss-20b:free",
+    model="openai/gpt-oss-120b:free",
+    # model="deepseek/deepseek-v4-flash",
     max_tokens=512,
     temperature=0.2,
     context_window=8192,
@@ -50,6 +51,9 @@ vector_store = PGVectorStore.from_params(
     port        = os.getenv("DB_PORT", "5432"),
     user        = os.getenv("POSTGRES_USER"),
     schema_name = "public",
+    # ⚠ PGVectorStore 는 table_name 앞에 자동으로 'data_' 를 붙인다.
+    #   → 실제 물리 테이블이 public.data_tmp_chatbot_00(61행) 이므로 여기엔 접두어 없이 "tmp_chatbot_00" 을 넣어야 한다.
+    #   ("data_tmp_chatbot_00" 을 넣으면 data_data_tmp_chatbot_00(0행)을 찾아 검색 0건→'Empty Response')
     table_name  = "tmp_chatbot_00",
     embed_dim   = 384,                          # embed_model에 따라 dimention 변경
 )
@@ -127,10 +131,11 @@ async def chat(request: Request):
     """chat endpoint"""
     try:
         body = await request.json()
-        # print("body ----> ", body)
+        print("body ----> ", body)
         query = body["query"]
-        # print("query ----> ", query)
+        print("query ----> ", query)
         response = query_engine.query(query)
+        print("response ----> ", response)
         answer = response.response  # 여기를 수정
         # answer = query_engine.query(query)
         # answer = rag_chain.invoke(query.question).strip()
