@@ -4,7 +4,8 @@ supp_08 풀스택 챗 백엔드 (정답 코드)
 day13의 /chat + day14의 /chat/stream 을 한 파일로 통합하고,
 프론트 연동에 필요한 CORS · SSE · WebSocket 을 더했다.
 
-- LLM: MLAPI (OpenAI 호환 게이트웨이) — day11~15 와 동일. 키는 repo 루트 .env 의 MLAPI_*.
+- LLM: OpenRouter `google/gemma-4-26b-a4b-it` (OpenAI 호환) — supp_03~07 과 동일. 키는 supp/.env 의 OPENROUTER_*.
+  ([참고] 기존: MLAPI 게이트웨이 + repo 루트 .env 의 MLAPI_*)
 - 실행:  uvicorn server:app --reload --port 8000   (yeardream 환경)
 
 엔드포인트
@@ -23,24 +24,33 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from openai import AsyncOpenAI
 
-# 키는 repo 루트 .env 의 MLAPI_* (사용자가 루트로 이동시켜 둠).
-# 이 파일 위치: supp/supp_08/backend/server.py → parents[3] 가 repo 루트.
-# (주의) 상위 supp/.env 는 OpenRouter 용이라 MLAPI 키가 없음 → 루트 .env 를 명시적으로 먼저 로드.
-# (도커) 컨테이너에선 /app/server.py 로 복사돼 parents[3] 가 없어 IndexError → 길이 가드로 방지.
-#        도커는 compose 의 env_file(../../.env) 가 환경변수로 이미 주입돼 .env 파일이 없어도 동작.
+# 키는 supp/.env 의 OPENROUTER_* (supp_03~07 의 _common.py 와 같은 파일).
+# 이 파일 위치: supp/supp_08/backend/server.py → parents[2] 가 supp/.
+# (주의) repo 루트 .env 는 OPENROUTER_MODEL 을 다른 모델로 덮어쓸 수 있어 명시적으로 로드하지 않음.
+# (도커) 컨테이너에선 /app/server.py 로 복사돼 parents[2] 가 없음 → 길이 가드로 방지.
+#        도커는 compose 의 env_file(../.env = supp/.env) 가 환경변수로 이미 주입돼 .env 파일이 없어도 동작.
+# [참고] 기존: repo 루트 .env (parents[3]) 의 MLAPI_* 를 먼저 로드
+#   if len(_parents) > 3:
+#       _ROOT_ENV = _parents[3] / ".env"
+#       if _ROOT_ENV.exists():
+#           load_dotenv(_ROOT_ENV)
 _parents = Path(__file__).resolve().parents
-if len(_parents) > 3:
-    _ROOT_ENV = _parents[3] / ".env"
-    if _ROOT_ENV.exists():
-        load_dotenv(_ROOT_ENV)            # 로컬 실행: repo 루트 .env (MLAPI_*)
-load_dotenv(find_dotenv(usecwd=True), override=False)  # 보조: 루트에 없으면 실행 위치 기준 탐색
+if len(_parents) > 2:
+    _SUPP_ENV = _parents[2] / ".env"
+    if _SUPP_ENV.exists():
+        load_dotenv(_SUPP_ENV)            # 로컬 실행: supp/.env (OPENROUTER_*)
+load_dotenv(find_dotenv(usecwd=True), override=False)  # 보조: supp/.env 가 없으면 실행 위치 기준 탐색
 
-BASE_URL = os.getenv("MLAPI_BASE_URL", "https://mlapi.run/40cc17ae-a89b-4f12-a7d6-13293180fc87/v1")
-API_KEY  = os.getenv("MLAPI_API_KEY")
-MODEL    = os.getenv("MLAPI_MODEL", "openai/gpt-4o-mini")
+# [참고] 기존 MLAPI 설정
+# BASE_URL = os.getenv("MLAPI_BASE_URL", "https://mlapi.run/40cc17ae-a89b-4f12-a7d6-13293180fc87/v1")
+# API_KEY  = os.getenv("MLAPI_API_KEY")
+# MODEL    = os.getenv("MLAPI_MODEL", "openai/gpt-4o-mini")
+BASE_URL = "https://openrouter.ai/api/v1"
+API_KEY  = os.getenv("OPENROUTER_API_KEY")
+MODEL    = os.getenv("OPENROUTER_MODEL") or "google/gemma-4-26b-a4b-it"   # 빈 값(OPENROUTER_MODEL=)도 기본값 처리
 
 if not API_KEY:
-    raise RuntimeError("MLAPI_API_KEY 가 없습니다. repo 루트 .env 를 확인하세요.")
+    raise RuntimeError("OPENROUTER_API_KEY 가 없습니다. supp/.env 를 확인하세요.")
 
 client = AsyncOpenAI(api_key=API_KEY, base_url=BASE_URL)
 

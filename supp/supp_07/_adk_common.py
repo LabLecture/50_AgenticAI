@@ -1,7 +1,7 @@
 """
 _adk_common.py — supp_07 공통 헬퍼
 
-(1) OpenRouter free 모델을 LiteLlm 으로 wrap → ADK 의 LlmAgent 에 주입
+(1) OpenRouter Gemma 4 모델을 LiteLlm 으로 wrap → ADK 의 LlmAgent 에 주입
 (2) Runner 실행을 동기 함수 1 개로 단순화
 """
 import sys as _sys
@@ -19,14 +19,16 @@ from _common import llm_unavailable as _shared_unavail
 def adk_model(force: str | None = None):
     """ADK LlmAgent 의 model= 에 그대로 넣을 수 있는 LiteLlm 객체.
 
-    OpenRouter free 모델 (.env 의 OPENROUTER_API_KEY) 을 사용.
-    기본: google/gemma-4-26b-a4b-it:free (reasoning prefix 없는 일반 모델)
+    OpenRouter 모델 (.env 의 OPENROUTER_API_KEY) 을 사용.
+    기본: google/gemma-4-26b-a4b-it (유료·저가, reasoning prefix 없는 일반 모델)
+    [참고] 기존 기본값: google/gemma-4-26b-a4b-it:free
     `OPENROUTER_TEXT_MODEL` env 또는 force 인자로 덮어쓰기.
     """
     from google.adk.models.lite_llm import LiteLlm
     if force:
         return LiteLlm(model=f"openrouter/{force}")
-    model = os.getenv("OPENROUTER_TEXT_MODEL", "google/gemma-4-26b-a4b-it:free")
+    # [참고] 기존: model = os.getenv("OPENROUTER_TEXT_MODEL", "google/gemma-4-26b-a4b-it:free")
+    model = os.getenv("OPENROUTER_TEXT_MODEL") or "google/gemma-4-26b-a4b-it"  # 빈 값도 기본값 처리
     return LiteLlm(model=f"openrouter/{model}")
 
 

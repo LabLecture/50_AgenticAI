@@ -3,9 +3,9 @@
 
 설계 결정
 ---------
-* LLM   : OpenRouter `deepseek/deepseek-v4-flash` (유료, 저가). free 로 쓰려면
-          `OPENROUTER_MODEL=google/gemma-4-26b-a4b-it:free` 등으로 덮어쓰기.
-          (`openai/gpt-oss-20b:free` 는 OpenRouter 에서 삭제됨)
+* LLM   : OpenRouter `google/gemma-4-26b-a4b-it` (Gemma 4 26B A4B, 유료·저가, 이미지 입력 지원).
+          텍스트/비전(supp_05)/ADK(supp_07) 모두 같은 모델. `OPENROUTER_MODEL` 등으로 덮어쓰기.
+          ([참고] 기존: `deepseek/deepseek-v4-flash`, 비전은 `nvidia/nemotron-3.5-super-vl:free`)
 * 임베딩: HuggingFace `intfloat/multilingual-e5-small` (한국어 OK, OpenAI 키 불필요)
 * 벡터DB: 인메모리 Chroma (매 실행마다 새로 생성)
 * 웹검색: DuckDuckGo (`ddgs`, 구 `duckduckgo-search`). Tavily 키 없이도 동작.
@@ -38,18 +38,17 @@ from langchain_core.documents import Document
 # 1) LLM
 # ===========================================================================
 def get_llm(temperature: float = 0):
-    """OpenRouter free 모델 ChatOpenAI 반환. 키 없으면 None."""
+    """OpenRouter Gemma 4 ChatOpenAI 반환. 키 없으면 None."""
     from langchain_openai import ChatOpenAI
 
     api_key = os.getenv("OPENROUTER_API_KEY")
     if not api_key:
         return None
 
-    # 기본: deepseek/deepseek-v4-flash (유료, 저가). free 대안: google/gemma-4-26b-a4b-it:free.
-    # openai/gpt-oss-20b:free 는 OpenRouter 에서 삭제됨.
+    # 기본: google/gemma-4-26b-a4b-it (유료, 저가). free 대안: google/gemma-4-26b-a4b-it:free (429 잦음).
     # 시점별 가용성 변동 가능 — .env 의 OPENROUTER_MODEL 로 언제든 교체.
-    model = os.getenv("OPENROUTER_MODEL", "deepseek/deepseek-v4-flash")
-    # model = os.getenv("OPENROUTER_MODEL", "google/gemma-4-26b-a4b-it:free")
+    # [참고] 기존: model = os.getenv("OPENROUTER_MODEL", "deepseek/deepseek-v4-flash")
+    model = os.getenv("OPENROUTER_MODEL") or "google/gemma-4-26b-a4b-it"  # 빈 값도 기본값 처리
     return ChatOpenAI(
         model=model,
         temperature=temperature,
@@ -61,11 +60,11 @@ def get_llm(temperature: float = 0):
 
 
 def get_vlm(temperature: float = 0):
-    """OpenRouter free Vision 모델 ChatOpenAI 반환 (supp_05 멀티모달용).
+    """OpenRouter Vision 모델 ChatOpenAI 반환 (supp_05 멀티모달용).
 
     `OPENROUTER_VISION_MODEL` env 로 덮어쓰기 가능.
-    기본값: `nvidia/nemotron-3.5-super-vl:free` — image input 지원 확인된 free 모델.
-    대안: `google/gemma-4-31b-it:free`, `google/gemma-4-26b-a4b-it:free` 등 (429 잦음).
+    기본값: `google/gemma-4-26b-a4b-it` — Gemma 4 는 image input 지원 (텍스트 LLM 과 같은 모델).
+    [참고] 기존 기본값: `nvidia/nemotron-3.5-super-vl:free`
     """
     from langchain_openai import ChatOpenAI
 
@@ -73,7 +72,8 @@ def get_vlm(temperature: float = 0):
     if not api_key:
         return None
 
-    model = os.getenv("OPENROUTER_VISION_MODEL", "nvidia/nemotron-3.5-super-vl:free")
+    # [참고] 기존: model = os.getenv("OPENROUTER_VISION_MODEL", "nvidia/nemotron-3.5-super-vl:free")
+    model = os.getenv("OPENROUTER_VISION_MODEL") or "google/gemma-4-26b-a4b-it"  # 빈 값도 기본값 처리
     return ChatOpenAI(
         model=model,
         temperature=temperature,

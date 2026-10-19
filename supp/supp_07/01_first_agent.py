@@ -13,7 +13,7 @@ def main() -> None:
 
     agent = LlmAgent(
         name="greeter",
-        model=adk_model(),                            # OpenRouter free 모델
+        model=adk_model(),                            # OpenRouter Gemma 4 모델
         description="사용자를 맞이하는 에이전트",
         instruction="너는 친절한 안내자다. 사용자의 인사에 한 줄로 답하라.",
     )

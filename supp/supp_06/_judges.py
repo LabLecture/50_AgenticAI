@@ -1,5 +1,8 @@
 """
-_judges.py — Ragas / DeepEval 의 심판 LLM 을 OpenRouter free 모델로 wrap
+_judges.py — Ragas / DeepEval 의 심판 LLM 을 OpenRouter Gemma 4 모델로 wrap
+
+심판 LLM = _common.get_llm() → 기본 google/gemma-4-26b-a4b-it (OPENROUTER_MODEL 로 교체).
+[참고] 기존: OpenRouter free 모델 (gpt-oss-20b:free 등) → 이후 deepseek/deepseek-v4-flash
 
 Ragas:   LangchainLLMWrapper(ChatOpenAI(OpenRouter)) — 그대로 동작.
 DeepEval: DeepEvalBaseLLM 서브클래스 필요 (OpenAI 키 없이 OpenRouter 사용).
@@ -28,7 +31,7 @@ def ragas_embeddings():
 
 
 # ─────────────────────────────────────────────────────────────────────
-# DeepEval — DeepEvalBaseLLM 서브클래스로 OpenRouter free 모델 사용
+# DeepEval — DeepEvalBaseLLM 서브클래스로 OpenRouter Gemma 4 모델 사용
 # ─────────────────────────────────────────────────────────────────────
 def deepeval_judge():
     from deepeval.models.base_model import DeepEvalBaseLLM
@@ -37,7 +40,10 @@ def deepeval_judge():
     import json
 
     class OpenRouterJudge(DeepEvalBaseLLM):
-        """OpenRouter free 모델 (gpt-oss-20b 등) 을 DeepEval 의 심판 LLM 으로."""
+        """OpenRouter Gemma 4 (google/gemma-4-26b-a4b-it) 를 DeepEval 의 심판 LLM 으로.
+
+        [참고] 기존: OpenRouter free 모델 (gpt-oss-20b 등)
+        """
 
         def __init__(self):
             self._llm = get_llm()

@@ -6,7 +6,7 @@ day13·day14 백엔드를 한 파일로 통합한 `backend/`, React 챗 `fronten
 ```
 supp_08/
 ├── backend/
-│   ├── server.py          # CORS + /chat + /chat/stream + /chat/sse + /ws/chat (MLAPI)
+│   ├── server.py          # CORS + /chat + /chat/stream + /chat/sse + /ws/chat (OpenRouter)
 │   ├── requirements.txt
 │   └── Dockerfile
 ├── frontend/
@@ -25,14 +25,15 @@ supp_08/
 └── docker-compose.yml     # 6교시 통합 기동
 ```
 
-## 키 (MLAPI)
+## 키 (OpenRouter)
 
-day11~15 와 동일하게 **repo 루트 `.env`** 의 `MLAPI_*` 를 사용한다(새 키 불필요).
+supp_03~07 과 동일하게 **`supp/.env`** 의 OpenRouter 키를 사용한다 (base_url=`https://openrouter.ai/api/v1`).
 ```
-MLAPI_BASE_URL=https://mlapi.run/.../v1
-MLAPI_API_KEY=...
-MLAPI_MODEL=openai/gpt-4o-mini
+OPENROUTER_API_KEY=sk-or-v1-...
+# (선택) 비우면 기본 google/gemma-4-26b-a4b-it
+OPENROUTER_MODEL=
 ```
+> [참고] 기존: repo 루트 `.env` 의 `MLAPI_BASE_URL` / `MLAPI_API_KEY` / `MLAPI_MODEL=openai/gpt-4o-mini`
 
 ## 실행 (로컬 2-프로세스)
 
@@ -71,6 +72,6 @@ docker-compose up --build      # backend:8000 + frontend:3000
 
 ## 검증 상태
 
-백엔드는 yeardream 환경에서 실제 MLAPI 키로 검증 완료:
+백엔드는 yeardream 환경에서 실제 MLAPI 키로 검증 완료 (OpenRouter 전환 후 `/chat` 재검증):
 CORS preflight(`Access-Control-Allow-Origin`), `/chat`, `/chat/stream`(`X-Accel-Buffering:no`+`[DONE]`), `/chat/sse`(`data:`), `/ws/chat` 모두 정상.
 프론트엔드는 표준 CRA 구조이며 `npm install` 후 동작한다.

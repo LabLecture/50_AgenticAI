@@ -13,7 +13,8 @@
 #
 # 키 설정 (.env):
 #   OPENROUTER_API_KEY=sk-or-v1-...
-#   OPENROUTER_MODEL=google/gemma-4-26b-a4b-it:free    # (선택) 기본 모델 덮어쓰기 (gpt-oss-20b:free 는 OpenRouter 에서 삭제됨)
+#   OPENROUTER_MODEL=google/gemma-4-26b-a4b-it         # (선택) 기본값과 동일 — 다른 모델로 덮어쓸 때만 지정
+#   # [참고] 기존 기본값: deepseek/deepseek-v4-flash
 
 # --- LangGraph / LangChain 1.x 스택 ---
 langgraph==1.2.2
@@ -52,8 +53,8 @@ langchain-experimental==0.4.2
 json-repair==0.59.10
 
 # --- 멀티모달 챗봇 (supp_05) ---
-# VLM: OpenRouter free vision 모델 (.env 의 OPENROUTER_VISION_MODEL).
-#   기본: nvidia/nemotron-3.5-super-vl:free (image input 지원 확인됨)
+# VLM: OpenRouter vision 모델 (.env 의 OPENROUTER_VISION_MODEL).
+#   기본: google/gemma-4-26b-a4b-it (image input 지원. [참고] 기존: nvidia/nemotron-3.5-super-vl:free)
 # CLIP 임베딩: open-clip-torch (ViT-B-32 ~150MB, 첫 호출 시 자동 다운로드)
 # STT: faster-whisper (로컬, OpenAI 키 불필요. base 모델 ~140MB)
 # TTS: edge-tts (Microsoft Edge 음성, 무료, 한국어 신경망 보이스 다수)
@@ -70,7 +71,7 @@ pymupdf==1.27.2.3
 # langchain-google-vertexai 를 함께 설치한 뒤 site-packages/langchain_community/chat_models/
 # 에 vertexai.py 파일 (1 줄: `from langchain_google_vertexai import ChatVertexAI`) 을 만들어 둠.
 # DeepEval 의 심판 LLM 은 OPENAI_API_KEY 가 기본이지만, _judges.py 의 DeepEvalBaseLLM
-# 서브클래스로 OpenRouter free 모델로 우회.
+# 서브클래스로 OpenRouter Gemma 4 모델로 우회.
 ragas==0.4.3
 deepeval==4.0.5
 langchain-google-vertexai==3.2.3
@@ -78,7 +79,7 @@ datasets==4.8.5
 rapidfuzz==3.14.5
 
 # --- Google ADK (supp_07) ---
-# OpenRouter free 모델은 google-adk[extensions] 의 LiteLlm 으로 wrap.
+# OpenRouter Gemma 4 모델은 google-adk[extensions] 의 LiteLlm 으로 wrap.
 # 운영 시 Cloud Run / Vertex AI Agent Engine 배포는 별도 gcloud auth 필요.
 # 2.1.0 은 gradio 6.x 와 starlette 버전 충돌 → 2.12.0
 google-adk[extensions]==2.12.0

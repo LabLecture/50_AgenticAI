@@ -7,7 +7,8 @@
 completion_models:
   default_completion_model:
     model_provider: openrouter          # LiteLLM provider — OpenRouter (OpenAI 호환)
-    model: openai/gpt-4.1-nano          # 저비용 모델
+    model: google/gemma-4-26b-a4b-it    # Gemma 4 26B A4B (저비용)
+    # [참고] 기존: model: openai/gpt-4.1-nano
     auth_method: api_key
     api_key: ${GRAPHRAG_API_KEY}        # .env 의 GRAPHRAG_API_KEY (= OpenRouter 키)
     retry:

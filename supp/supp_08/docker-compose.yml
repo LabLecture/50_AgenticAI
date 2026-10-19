@@ -1,13 +1,14 @@
 # [6교시] backend(FastAPI) + frontend(React) 를 한 번에 띄운다.
 #   docker-compose up --build
 # 50_AgenticAI/docker-compose-dev.yml 의 backend_dev + react_dev 와 같은 구조
-# (50_AgenticAI 는 LLM 이 로컬 Ollama 라 ollama_dev 가 하나 더 있을 뿐, 우리는 외부 MLAPI 사용).
+# (50_AgenticAI 는 LLM 이 로컬 Ollama 라 ollama_dev 가 하나 더 있을 뿐, 우리는 외부 OpenRouter 사용).
 services:
   backend:
     build: ./backend
-    # MLAPI 키는 repo 루트 .env 에서 주입 (compose 파일 기준 ../../.env)
+    # OPENROUTER_API_KEY / OPENROUTER_MODEL 은 supp/.env 에서 주입 (compose 파일 기준 ../.env)
+    # [참고] 기존: MLAPI 키를 repo 루트 .env 에서 주입 (- ../../.env)
     env_file:
-      - ../../.env
+      - ../.env
     ports:
       # 호스트 8000 이 다른 프로젝트와 충돌 → 호스트만 8001 로 변경 (컨테이너 내부는 그대로 8000)
       - "8001:8000"

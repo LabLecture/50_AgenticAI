@@ -69,7 +69,8 @@ def main():
         return
 
     # (2) Neo4j GenAI: Text2CypherRetriever + GraphRAG
-    model = os.getenv("OPENROUTER_MODEL", "deepseek/deepseek-v4-flash")
+    # [참고] 기존: model = os.getenv("OPENROUTER_MODEL", "deepseek/deepseek-v4-flash")
+    model = os.getenv("OPENROUTER_MODEL") or "google/gemma-4-26b-a4b-it"  # 빈 값도 기본값 처리
     llm = OpenAILLM(model_name=model, api_key=key,
                     base_url="https://openrouter.ai/api/v1", model_params={"temperature": 0})
     retriever = Text2CypherRetriever(driver=driver, llm=llm, neo4j_schema=SCHEMA, examples=EXAMPLES)

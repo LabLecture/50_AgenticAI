@@ -6,7 +6,7 @@
 ## ⚠️ 먼저 읽기
 - graphrag 는 의존성이 무겁고 메인 `supp/venv`(langchain 1.x)와 충돌할 수 있어 **별도 venv** 를 씁니다.
 - **임베딩 없이 Global Search 만** 도는 최소 구성입니다 — OpenRouter 에는 임베딩 API 가 없어, `settings.yaml` 의 `workflows` 에서 `generate_text_embeddings` 단계를 뺐습니다. 그래서 임베딩이 필요한 **Local / DRIFT / Basic search 는 미지원**(Global 만 가능).
-- LLM 은 **OpenRouter `openai/gpt-4.1-nano`** (저비용). 텍스트가 작아 index 비용은 보통 수 센트 이하.
+- LLM 은 **OpenRouter `google/gemma-4-26b-a4b-it`** (Gemma 4 26B A4B, 저비용. [참고] 기존: `openai/gpt-4.1-nano`). 텍스트가 작아 index 비용은 보통 수 센트 이하.
 
 ## 1) 설치 (별도 venv — ⚠️ Windows는 venv를 *짧은 경로*에!)
 > ⚠️ **Windows MAX_PATH(260자)**: venv 를 이 폴더 안(`16_graphrag_demo\venv`)에 만들면 의존성 `litellm` 의 매우 긴 파일 경로가 260자를 넘어
@@ -47,13 +47,13 @@ graphrag query --root . --method global "What are the main themes and key relati
 ## 검증된 출력 (예시)
 > Q: *"What are the main themes and key relationships in this text?"*
 > → "AI 안전·윤리에 대한 집중", "모델 개발사–클라우드–투자자 생태계", "파트너십의 함의" 등을
->   `[Data: Reports (...)]` 인용과 함께 종합 요약. (gpt-4.1-nano, 임베딩 0회)
+>   `[Data: Reports (...)]` 인용과 함께 종합 요약. (gemma-4-26b-a4b-it, 임베딩 0회)
 
 ## 구조
 ```
 16_graphrag_demo/
 ├── input/sample.txt   # 입력 텍스트 (작게 — AI 기업 관계 ~200단어)
-├── settings.yaml      # graphrag 설정 (OpenRouter nano + 임베딩 skip workflows)
+├── settings.yaml      # graphrag 설정 (OpenRouter gemma-4 + 임베딩 skip workflows)
 ├── prompts/           # 추출/리포트 프롬프트 (graphrag init 기본값)
 ├── .env.example       # GRAPHRAG_API_KEY
 └── (생성물) output/ cache/ logs/ venv/   ← gitignore
