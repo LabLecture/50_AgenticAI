@@ -34,7 +34,7 @@ def user_class_tool( # default 값에 따라 받아오는 값이 달라짐 (ex) 
         print(f"user_class_tool_start_user_name: {user_name}, user_school: {user_school}, user_grade: {user_grade}")
         class_datas = postrgre_db.fetch_all(db_sql.select_class_info, (user_name, user_school, user_grade))
 
-        if class_datas is None:
+        if not class_datas:  # None(오류) 과 [](결과 없음) 모두 처리
             return "입력 정보에 부합되는 수업정보가 없습니다.  다시 자녀정보를 입력해주세요."
         
         # 수업 정보 포맷팅

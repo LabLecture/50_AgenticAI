@@ -1,3 +1,4 @@
+import os
 from langchain_openai import ChatOpenAI
 from langchain_deepseek import ChatDeepSeek
 from langchain_ollama import ChatOllama                         # ModuleNotFoundError: No module named 'langchain_ollama' 
@@ -76,10 +77,15 @@ def get_llm_by_type(llm_type: LLMType) -> ChatOpenAI | ChatDeepSeek:
     # model_name = "deepseek-r1:14b"  # English
     # model_name = "mistral:latest"   # An error occurred: 'next'
     # model_name = "mistral-nemo:12b" # An error occurred: 'next'
-    model_name = "qwen3:8b"         # 서버 멈춤 An error occurred: 'next'
+    # .env 의 OLLAMA_MODEL / OLLAMA_BASE_URL 우선, 없으면 기존 값
+    model_name = os.getenv("OLLAMA_MODEL", "qwen3:8b")         # 서버 멈춤 An error occurred: 'next'
     # model_name = "mistral-small:latest" 
-    base_url = "http://localhost:11434"
-    if llm_type == "reasoning":
+    base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+    if BASIC_BASE_URL:
+        # .env 에 BASIC_BASE_URL 이 있으면 OpenAI 호환 API(OpenRouter 등) 사용, supervisor 는 JSON 강제
+        extra = {"model_kwargs": {"response_format": {"type": "json_object"}}} if llm_type == "supervisor" else {}
+        llm = create_openai_llm(model=BASIC_MODEL, base_url=BASIC_BASE_URL, api_key=BASIC_API_KEY, **extra)
+    elif llm_type == "reasoning":
         # llm = create_deepseek_llm(
         #     model=REASONING_MODEL,
         #     base_url=REASONING_BASE_URL,
@@ -107,7 +113,7 @@ def get_llm_by_type(llm_type: LLMType) -> ChatOpenAI | ChatDeepSeek:
         #     base_url=VL_BASE_URL,
         #     api_key=VL_API_KEY,
         # )
-        llm = ChatOllama(model=model_name, temperature=0)
+        llm = ChatOllama(model=model_name, temperature=0, base_url = base_url)
         # llm = ChatOllama(model="mistral-small:latest", temperature=0, base_url = "http://192.168.1.203:11434")
     else:
         raise ValueError(f"Unknown LLM type: {llm_type}")

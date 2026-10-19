@@ -166,13 +166,19 @@ def planner_node(state: State) -> Command[Literal["supervisor", "__end__"]]:
         full_response = full_response.removesuffix("```")
 
     goto = "supervisor"
+    json_response = {}  # 비JSON 응답 시 UnboundLocalError 방지
     try:
         json_response = json.loads(full_response)
     except json.JSONDecodeError:
         logger.warning("Planner response is not a valid JSON")
         goto = "__end__"
+    if not isinstance(json_response, dict):  # JSON 이지만 객체가 아닌 경우
+        json_response = {}
 
-    if "정보 요청" in json_response.get("title", ""):
+    if goto == "__end__":
+        # 비JSON 이면 planner 응답을 그대로 사용자에게 전달하고 종료
+        final_message = [AIMessage(content=full_response, name="planner")]
+    elif "정보 요청" in json_response.get("title", ""):
         final_response = json_response.get("steps", [{}])[0].get("description", "")
         final_message = [AIMessage(content=final_response, name="planner")]
     else:

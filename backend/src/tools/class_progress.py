@@ -32,7 +32,7 @@ def class_progress_tool(
         print(f"class_progress_tool_start_user_name: {user_name}, class_data: {class_data}, class_id: {class_id}")
         class_progress_data = postrgre_db.fetch_one(db_sql.select_class_progress_info_02, (user_name, f"%{class_data}%", class_id))
 
-        if class_progress_data is None:
+        if not class_progress_data:  # None(오류) 과 빈 결과 모두 처리
             return "입력 정보에 부합되는 수업정보가 없습니다.  다시 입력해주세요."
                 
         return f'''
