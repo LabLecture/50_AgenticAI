@@ -3,8 +3,10 @@ from datetime import datetime
 from PIL import Image
 from dotenv import load_dotenv
 
-# Hugging Face InferenceClient 임포트
-from huggingface_hub import InferenceClient
+import base64
+# [참고] 기존: Hugging Face InferenceClient (HF 정책 변경으로 OpenRouter 이미지 모델로 교체)
+# from huggingface_hub import InferenceClient
+from openai import OpenAI
 
 # LangChain 관련 임포트
 # from langchain_ollama import ChatOllama
@@ -15,36 +17,77 @@ from langchain.agents import create_agent # 사용자 환경에서 성공한 방
 
 load_dotenv()
 
-# --- [1. 이미지 생성 도구 정의: InferenceClient 활용] ---
+# [참고] 기존: Hugging Face InferenceClient 버전
+# # --- [1. 이미지 생성 도구 정의: InferenceClient 활용] ---
+# @tool
+# def generate_image_tool(prompt: str) -> str:
+#     """
+#     Generates an image using Hugging Face InferenceClient.
+#     The 'prompt' should be a detailed description in English.
+#     """
+#     try:
+#         # HF_TOKEN은 .env 파일에 저장되어 있어야 합니다.
+#         client = InferenceClient(
+#             provider="nscale",
+#             api_key=os.environ.get("HF_TOKEN"),
+#         )
+#
+#         # 이미지 생성 (PIL.Image 객체 반환)
+#         image = client.text_to_image(
+#             prompt,
+#             # SDXL 은 nscale provider 미지원 → nscale 에서 live 인 FLUX.1-schnell 사용
+#             model="black-forest-labs/FLUX.1-schnell",
+#         )
+#
+#         # 이미지 저장 경로 설정
+#         output_dir = "generated_images"
+#         os.makedirs(output_dir, exist_ok=True)
+#         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+#         file_path = f"{output_dir}/hf_client_{timestamp}.png"
+#
+#         # PIL 이미지 저장
+#         image.save(file_path)
+#
+#         return f"Image successfully generated and saved at: {file_path}"
+#
+#     except Exception as e:
+#         return f"Error during image generation: {str(e)}"
+
+# --- [1. 이미지 생성 도구 정의: OpenRouter 이미지 모델] ---
+# 이미지 모델은 OPENROUTER_IMAGE_MODEL 로 변경 가능 (OpenRouter 키 잔액 $1 이상 필요)
+IMAGE_MODEL = os.getenv("OPENROUTER_IMAGE_MODEL") or "google/gemini-2.5-flash-image"
+
 @tool
 def generate_image_tool(prompt: str) -> str:
     """
-    Generates an image using Hugging Face InferenceClient.
+    Generates an image using an OpenRouter image model.
     The 'prompt' should be a detailed description in English.
     """
     try:
-        # HF_TOKEN은 .env 파일에 저장되어 있어야 합니다.
-        client = InferenceClient(
-            provider="nscale",
-            api_key=os.environ.get("HF_TOKEN"),
+        client = OpenAI(
+            api_key=os.getenv("OPENROUTER_API_KEY"),
+            base_url="https://openrouter.ai/api/v1",
         )
-
-        # 이미지 생성 (PIL.Image 객체 반환)
-        image = client.text_to_image(
-            prompt,
-            # SDXL 은 nscale provider 미지원 → nscale 에서 live 인 FLUX.1-schnell 사용
-            model="black-forest-labs/FLUX.1-schnell",
+        # modalities 에 image 를 넣으면 응답 message.images 에 data URL(base64) 로 이미지가 옴
+        resp = client.chat.completions.create(
+            model=IMAGE_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            extra_body={"modalities": ["image", "text"]},
         )
+        msg = resp.choices[0].message
+        images = getattr(msg, "images", None) or (msg.model_extra or {}).get("images")
+        if not images:
+            return f"No image returned: {msg.content}"
+        data_url = images[0]["image_url"]["url"]
 
         # 이미지 저장 경로 설정
         output_dir = "generated_images"
         os.makedirs(output_dir, exist_ok=True)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        file_path = f"{output_dir}/hf_client_{timestamp}.png"
+        file_path = f"{output_dir}/openrouter_{timestamp}.png"
+        with open(file_path, "wb") as f:
+            f.write(base64.b64decode(data_url.split(",", 1)[1]))
 
-        # PIL 이미지 저장
-        image.save(file_path)
-        
         return f"Image successfully generated and saved at: {file_path}"
 
     except Exception as e:
@@ -53,7 +96,7 @@ def generate_image_tool(prompt: str) -> str:
 # 도구 리스트
 tools = [generate_image_tool]
 
-# --- [2. LLM 설정: OpenRouter (이미지 생성은 HF FLUX 그대로)] ---
+# --- [2. LLM 설정: OpenRouter] ---
 # [참고] 기존: llm = ChatOllama(model="mistral:latest", temperature=0)
 # OpenRouter Gemma 4 26B A4B (OPENROUTER_MODEL 로 변경 가능)
 llm = ChatOpenAI(
