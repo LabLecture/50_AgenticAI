@@ -6,3 +6,6 @@ frontend/node_modules
 /backend/vector_store
 *.pyc
 /m_asset_poc/venv
+
+# 비밀키 파일 (.env.example 만 커밋)
+**/.env

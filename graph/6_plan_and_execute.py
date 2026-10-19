@@ -117,6 +117,9 @@ async def replan_step(state: PlanExecute):
     output = await replanner.ainvoke(state)
     if isinstance(output.action, Response):
         return {"response": output.action.response}
+    elif not output.action.steps:
+        # 빈 plan 이면 plan[0] IndexError 방지 → 마지막 실행 결과로 응답
+        return {"response": state["past_steps"][-1][1]}
     else:
         return {"plan": output.action.steps}
 
@@ -145,12 +148,18 @@ workflow.add_conditional_edges(
 
 app = workflow.compile()
 
-from IPython.display import Image, display
-display(Image(app.get_graph(xray=True).draw_mermaid_png()))
+# 그래프 시각화(display)는 노트북 전용 → .py 에서는 생략
 
-config = {"recursion_limit": 500}
-inputs = {"input": "what is the hometown of the mens 2024 Australia open winner?"}
-async for event in app.astream(inputs, config=config):
-    for k, v in event.items():
-        if k != "__end__":
-            print(v)
+import asyncio
+
+# .py 에서는 최상위 async for 불가 → main() 으로 감싸서 asyncio.run
+async def main():
+    config = {"recursion_limit": 30}
+    inputs = {"input": "what is the hometown of the mens 2024 Australia open winner?"}
+    async for event in app.astream(inputs, config=config):
+        for k, v in event.items():
+            if k != "__end__":
+                print(v)
+
+if __name__ == "__main__":
+    asyncio.run(main())
