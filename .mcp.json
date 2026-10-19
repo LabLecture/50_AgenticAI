@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "discord": {
+      "command": "cmd",
+      "args": ["/c", "D:\\git\\2604_agent_210h_handson\\50_AgenticAI\\discord_bot.bat"]
+    }
+  }
+}
