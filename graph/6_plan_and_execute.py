@@ -87,7 +87,7 @@ Your original plan was this:
 You have currently done the follow steps:
 {past_steps}
 
-Update your plan accordingly. If no more steps are needed and you can return to the user, then respond with that. Otherwise, fill out the plan. Only add steps to the plan that still NEED to be done. Do not return previously done steps as part of the plan."""
+Update your plan accordingly. If no more steps are needed and you can return to the user, then respond with that. Otherwise, fill out the plan. Only add steps to the plan that still NEED to be done. Do not return previously done steps as part of the plan. If the past steps already answer the objective, respond to the user with Response instead of a new plan."""
 )
 
 replanner = replanner_prompt | llm.with_structured_output(Act)
@@ -151,15 +151,24 @@ app = workflow.compile()
 # 그래프 시각화(display)는 노트북 전용 → .py 에서는 생략
 
 import asyncio
+from langgraph.errors import GraphRecursionError
 
 # .py 에서는 최상위 async for 불가 → main() 으로 감싸서 asyncio.run
 async def main():
     config = {"recursion_limit": 30}
     inputs = {"input": "what is the hometown of the mens 2024 Australia open winner?"}
-    async for event in app.astream(inputs, config=config):
-        for k, v in event.items():
-            if k != "__end__":
-                print(v)
+    last_result = None
+    try:
+        async for event in app.astream(inputs, config=config):
+            for k, v in event.items():
+                if k != "__end__":
+                    print(v)
+                    if "past_steps" in v:
+                        last_result = v["past_steps"][-1][1]
+    except GraphRecursionError:
+        # replanner 가 Response 를 안 고르고 계속 plan 만 내면 제한에 걸림 → 마지막 실행 결과로 마무리
+        print("\n[recursion_limit 30 도달] 마지막 실행 결과를 최종 답변으로 출력합니다.")
+        print(last_result)
 
 if __name__ == "__main__":
     asyncio.run(main())
