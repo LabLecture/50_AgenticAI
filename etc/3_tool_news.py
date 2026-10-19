@@ -1,10 +1,15 @@
+import os
 import re
 import requests
 from bs4 import BeautifulSoup
-from langchain_ollama import ChatOllama
+# from langchain_ollama import ChatOllama
+from langchain_openai import ChatOpenAI
+from dotenv import load_dotenv
 from langchain_core.tools import tool
 from langchain_core.messages import HumanMessage
 from langchain_core.output_parsers.openai_tools import JsonOutputToolsParser
+
+load_dotenv()  # etc/.env 의 OPENROUTER_API_KEY 로드
 
 # 1. 도구 정의
 @tool
@@ -69,10 +74,15 @@ def execute_tool_calls(tool_call_results):
         else:
             print(f"경고: {tool_name} 도구를 찾을 수 없습니다.")
 
-# 3. 모델 설정 (Ollama)
-# 도구 호출 기능이 탑재된 mistral 모델 사용
-# num_predict: mistral 이 도구 호출 뒤 출력을 멈추지 않아 10분+ 걸리므로 토큰 상한 지정
-llm = ChatOllama(model="mistral:latest", temperature=0, num_predict=256)
+# 3. 모델 설정 (OpenRouter)
+# [참고] 기존: llm = ChatOllama(model="mistral:latest", temperature=0, num_predict=256)
+# OpenRouter Gemma 4 26B A4B (OPENROUTER_MODEL 로 변경 가능)
+llm = ChatOpenAI(
+    model=os.getenv("OPENROUTER_MODEL") or "google/gemma-4-26b-a4b-it",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url="https://openrouter.ai/api/v1",
+    temperature=0,
+)
 llm_with_tools = llm.bind_tools(tools)
 
 # 4. 체인 구성 (Bind -> Parser -> Exec)

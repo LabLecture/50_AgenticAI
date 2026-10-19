@@ -7,7 +7,8 @@ from dotenv import load_dotenv
 from huggingface_hub import InferenceClient
 
 # LangChain 관련 임포트
-from langchain_ollama import ChatOllama
+# from langchain_ollama import ChatOllama
+from langchain_openai import ChatOpenAI
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain_core.tools import tool
 from langchain.agents import create_agent # 사용자 환경에서 성공한 방식
@@ -52,8 +53,15 @@ def generate_image_tool(prompt: str) -> str:
 # 도구 리스트
 tools = [generate_image_tool]
 
-# --- [2. 로컬 LLM 설정: Ollama] ---
-llm = ChatOllama(model="mistral:latest", temperature=0)
+# --- [2. LLM 설정: OpenRouter (이미지 생성은 HF FLUX 그대로)] ---
+# [참고] 기존: llm = ChatOllama(model="mistral:latest", temperature=0)
+# OpenRouter Gemma 4 26B A4B (OPENROUTER_MODEL 로 변경 가능)
+llm = ChatOpenAI(
+    model=os.getenv("OPENROUTER_MODEL") or "google/gemma-4-26b-a4b-it",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url="https://openrouter.ai/api/v1",
+    temperature=0,
+)
 
 # --- [3. 에이전트 생성 (사용자 방식 유지)] ---
 image_agent = create_agent(

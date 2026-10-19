@@ -4,12 +4,14 @@ from pydantic import BaseModel
 from langchain_core.output_parsers import StrOutputParser   # 문자열 출력 파서
 from langchain_core.runnables import RunnablePassthrough    # 입력을 그대로 출력하는 러너블
 # from langchain_openai import OpenAI, OpenAIEmbeddings       
-from langchain_ollama import ChatOllama   
+# from langchain_ollama import ChatOllama   
+from langchain_openai import ChatOpenAI
 from langchain_huggingface import HuggingFaceEmbeddings     # HuggingFace 임베딩 모델
 from langchain_chroma import Chroma
 from src.utils import format_docs   # 검색된 문서들을 텍스트 형식으로 변환하는 유틸 함수
 from src.prompt import prompt       # 프롬프트 템플릿 
 from dotenv import load_dotenv      # .env 환경변수 로드
+import os
 
 load_dotenv()       # .env 파일에 정의된 API 키나 환경 변수들을 로드
 app = FastAPI()     # [1]. FastAPI 앱 생성
@@ -21,7 +23,14 @@ app = FastAPI()     # [1]. FastAPI 앱 생성
 #     max_tokens=512,
 #     streaming=True
 # )
-llm = ChatOllama(model="mistral:latest")
+# [참고] 기존: llm = ChatOllama(model="mistral:latest")
+# OpenRouter Gemma 4 26B A4B (OPENROUTER_MODEL 로 변경 가능)
+llm = ChatOpenAI(
+    model=os.getenv("OPENROUTER_MODEL") or "google/gemma-4-26b-a4b-it",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url="https://openrouter.ai/api/v1",
+    temperature=0.2,
+)
 
 # [3]. 임베딩 모델 설정
 # embeddings_model = OpenAIEmbeddings()

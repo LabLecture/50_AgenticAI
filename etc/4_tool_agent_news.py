@@ -2,10 +2,14 @@ import os
 import re
 import requests
 from bs4 import BeautifulSoup
-from langchain_ollama import ChatOllama
+# from langchain_ollama import ChatOllama
+from langchain_openai import ChatOpenAI
+from dotenv import load_dotenv
 from langchain_core.tools import tool
 from langchain_core.messages import SystemMessage, HumanMessage
 from langchain.agents import create_agent
+
+load_dotenv()  # etc/.env 의 OPENROUTER_API_KEY 로드
 
 # 1. 도구(Tools) 정의
 @tool
@@ -44,9 +48,14 @@ def naver_news_crawl(news_url: str) -> str:
 tools = [naver_news_crawl, get_word_length]
 
 # 2. LLM 및 에이전트 설정
-# mistral 은 도구 호출을 텍스트로만 써서 tool_calls=[] 가 되고 기사 내용을 지어냄
-# → 도구 호출이 안정적인 qwen2.5:7b 를 기본값으로 사용 (OLLAMA_MODEL 환경변수로 변경 가능)
-llm = ChatOllama(model=os.getenv("OLLAMA_MODEL", "qwen2.5:7b"), temperature=0)
+# [참고] 기존: llm = ChatOllama(model=os.getenv("OLLAMA_MODEL", "qwen2.5:7b"), temperature=0)
+# OpenRouter Gemma 4 26B A4B (OPENROUTER_MODEL 로 변경 가능)
+llm = ChatOpenAI(
+    model=os.getenv("OPENROUTER_MODEL") or "google/gemma-4-26b-a4b-it",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url="https://openrouter.ai/api/v1",
+    temperature=0,
+)
 
 # 3. 에이전트 생성 (제시해주신 예제 패턴 적용)
 news_agent = create_agent(

@@ -1,8 +1,13 @@
+import os
 from langchain_experimental.tools import PythonREPLTool
-from langchain_ollama import ChatOllama
+# from langchain_ollama import ChatOllama
+from langchain_openai import ChatOpenAI
+from dotenv import load_dotenv
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables import RunnableLambda
+
+load_dotenv()  # etc/.env 의 OPENROUTER_API_KEY 로드
 
 # 1. 파이썬 코드를 실행하는 도구 생성
 python_tool = PythonREPLTool()
@@ -33,9 +38,15 @@ prompt = ChatPromptTemplate.from_messages(
     ]
 )
 
-# 4. LLM 모델 생성 (Ollama로 변경)
-# 로컬에 설치된 mistral, llama3, gemma2 등의 모델명을 입력하세요.
-llm = ChatOllama(model="mistral:latest", temperature=0)
+# 4. LLM 모델 생성 (OpenRouter 사용)
+# [참고] 기존: llm = ChatOllama(model="mistral:latest", temperature=0)
+# OpenRouter Gemma 4 26B A4B (OPENROUTER_MODEL 로 변경 가능)
+llm = ChatOpenAI(
+    model=os.getenv("OPENROUTER_MODEL") or "google/gemma-4-26b-a4b-it",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url="https://openrouter.ai/api/v1",
+    temperature=0,
+)
 
 # 5. 체인 생성 (LCEL)
 chain = prompt | llm | StrOutputParser() | RunnableLambda(print_and_execute)

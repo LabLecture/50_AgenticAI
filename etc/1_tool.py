@@ -1,7 +1,12 @@
+import os
 from langchain_core.runnables import ConfigurableField
 from langchain_core.tools import tool
-from langchain_ollama import ChatOllama
+# from langchain_ollama import ChatOllama
+from langchain_openai import ChatOpenAI
+from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage
+
+load_dotenv()  # etc/.env 의 OPENROUTER_API_KEY 로드
 
 # 1. 도구(Tools) 정의
 @tool
@@ -22,9 +27,15 @@ def add(x: float, y: float) -> float:
 # 도구 리스트 구성
 tools = [multiply, exponentiate, add]
 
-# 2. LLM 설정 (Ollama 사용)
-# 기기 성능에 따라 mistral 대신 llama3 혹은 gemma를 사용할 수 있습니다.
-llm = ChatOllama(model="mistral:latest", temperature=0).bind_tools(tools)
+# 2. LLM 설정 (OpenRouter 사용)
+# [참고] 기존: llm = ChatOllama(model="mistral:latest", temperature=0).bind_tools(tools)
+# OpenRouter Gemma 4 26B A4B (OPENROUTER_MODEL 로 변경 가능)
+llm = ChatOpenAI(
+    model=os.getenv("OPENROUTER_MODEL") or "google/gemma-4-26b-a4b-it",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url="https://openrouter.ai/api/v1",
+    temperature=0,
+).bind_tools(tools)
 
 # 3. ConfigurableField 설정 (모델이나 설정을 동적으로 바꿀 수 있게 함)
 llm_with_tools = llm.configurable_alternatives(
