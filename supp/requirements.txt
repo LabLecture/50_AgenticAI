@@ -84,6 +84,7 @@ rapidfuzz==3.14.5
 # 2.1.0 은 gradio 6.x 와 starlette 버전 충돌 → 2.12.0
 google-adk[extensions]==2.12.0
 litellm==1.106.0          # google-adk 2.12.0 이 litellm>=1.84 요구
+mcp==2.3.0                # supp_07: litellm openrouter 경로가 import (미설치 시 APIConnectionError)
 
 # --- grpcio 1.71 고정 (supp_06 Windows DLL 호환) ---
 # grpcio 1.81 빌드가 Windows 보안 정책에 막혀 DLL 로드 실패하는 사례 → 1.71.0 안정.
