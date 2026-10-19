@@ -4,7 +4,8 @@ from psycopg.rows import dict_row
 
 class PostgreSqlDB:
     def __init__(self):
-        self.db_config = os.environ["POSTGRESQL_CONNECTION_STRING"]
+        # 연결 문자열이 없으면 빈 문자열 → psycopg 가 PGHOST/PGPORT/PGUSER/PGPASSWORD/PGDATABASE 환경변수 사용
+        self.db_config = os.getenv("POSTGRESQL_CONNECTION_STRING", "")
         
     def execute(self, query, params=None):
         """
