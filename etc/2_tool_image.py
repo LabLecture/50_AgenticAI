@@ -7,8 +7,16 @@ import os
 from datetime import datetime
 load_dotenv()
 
-# ChatOpenAI 모델 초기화
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.9, max_tokens=1000)
+# ChatOpenAI 모델 초기화 (프롬프트 생성용 LLM 만 OpenRouter, 이미지 생성은 DALL-E 그대로)
+# [참고] 기존: llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.9, max_tokens=1000)
+# OpenRouter Gemma 4 26B A4B (OPENROUTER_MODEL 로 변경 가능)
+llm = ChatOpenAI(
+    model=os.getenv("OPENROUTER_MODEL") or "google/gemma-4-26b-a4b-it",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url="https://openrouter.ai/api/v1",
+    temperature=0.9,
+    max_tokens=1000,
+)
 
 # DALL-E 이미지 생성을 위한 프롬프트 템플릿 정의
 prompt = PromptTemplate.from_template(

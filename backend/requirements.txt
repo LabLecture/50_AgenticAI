@@ -9,7 +9,6 @@ langchain
 langchain-core
 langchain-community
 langchain-openai
-langchain-ollama
 langchain-chroma
 langchain-huggingface
 langchain-text-splitters

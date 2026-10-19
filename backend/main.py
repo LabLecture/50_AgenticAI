@@ -21,7 +21,8 @@ app = FastAPI()     # [1]. FastAPI 앱 생성
 api_key = os.getenv("OPENROUTER_API_KEY")
 
 llm = ChatOpenAI(
-    model=os.getenv("OPENROUTER_MODEL", "openai/gpt-oss-20b"),  # :free 모델은 404 → .env 로 교체 가능
+    # [참고] 기존: model=os.getenv("OPENROUTER_MODEL", "openai/gpt-oss-20b"),
+    model=os.getenv("OPENROUTER_MODEL") or "google/gemma-4-26b-a4b-it",  # Gemma 4 26B A4B (OPENROUTER_MODEL 로 변경 가능)
     temperature=0.2,  # 응답의 창의성(무작위성) 조절
     api_key=api_key,
     base_url="https://openrouter.ai/api/v1",
