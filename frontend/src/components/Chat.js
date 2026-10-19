@@ -43,7 +43,7 @@ const Chat = () => {
                 },
               ]);
 
-              const response = await axios.post("http://61.108.166.16:8000/chat", {
+              const response = await axios.post(`${process.env.REACT_APP_API_URL || "http://localhost:8000"}/chat/`, {
                 question: textContent,
               });
 

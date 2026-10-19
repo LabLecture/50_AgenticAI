@@ -69,4 +69,6 @@ async def chat(query: UserQuery):
         return {"answer": answer}   # 응답 반환
     except Exception as e:
         print(e)
+        # 예외를 삼키면 HTTP 200 + null 이 반환되므로, 프런트가 읽는 answer 키로 에러 전달
+        return {"answer": f"오류 발생: {e}"}
     

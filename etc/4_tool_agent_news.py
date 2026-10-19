@@ -1,3 +1,4 @@
+import os
 import re
 import requests
 from bs4 import BeautifulSoup
@@ -43,8 +44,9 @@ def naver_news_crawl(news_url: str) -> str:
 tools = [naver_news_crawl, get_word_length]
 
 # 2. LLM 및 에이전트 설정
-# 도구 호출 기능이 안정적인 mistral 모델을 사용합니다.
-llm = ChatOllama(model="mistral:latest", temperature=0)
+# mistral 은 도구 호출을 텍스트로만 써서 tool_calls=[] 가 되고 기사 내용을 지어냄
+# → 도구 호출이 안정적인 qwen2.5:7b 를 기본값으로 사용 (OLLAMA_MODEL 환경변수로 변경 가능)
+llm = ChatOllama(model=os.getenv("OLLAMA_MODEL", "qwen2.5:7b"), temperature=0)
 
 # 3. 에이전트 생성 (제시해주신 예제 패턴 적용)
 news_agent = create_agent(

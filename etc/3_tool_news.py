@@ -20,7 +20,7 @@ def naver_news_crawl(news_url: str) -> str:
     }
     
     try:
-        response = requests.get(news_url, headers=headers)
+        response = requests.get(news_url, headers=headers, timeout=10)
         if response.status_code == 200:
             soup = BeautifulSoup(response.text, "html.parser")
             
@@ -71,7 +71,8 @@ def execute_tool_calls(tool_call_results):
 
 # 3. 모델 설정 (Ollama)
 # 도구 호출 기능이 탑재된 mistral 모델 사용
-llm = ChatOllama(model="mistral:latest", temperature=0)
+# num_predict: mistral 이 도구 호출 뒤 출력을 멈추지 않아 10분+ 걸리므로 토큰 상한 지정
+llm = ChatOllama(model="mistral:latest", temperature=0, num_predict=256)
 llm_with_tools = llm.bind_tools(tools)
 
 # 4. 체인 구성 (Bind -> Parser -> Exec)

@@ -25,13 +25,14 @@ def generate_image_tool(prompt: str) -> str:
         # HF_TOKEN은 .env 파일에 저장되어 있어야 합니다.
         client = InferenceClient(
             provider="nscale",
-            api_key=os.environ.get("HUGGINGFACEHUB_API_TOKEN"),
+            api_key=os.environ.get("HF_TOKEN"),
         )
 
         # 이미지 생성 (PIL.Image 객체 반환)
         image = client.text_to_image(
             prompt,
-            model="stabilityai/stable-diffusion-xl-base-1.0",
+            # SDXL 은 nscale provider 미지원 → nscale 에서 live 인 FLUX.1-schnell 사용
+            model="black-forest-labs/FLUX.1-schnell",
         )
 
         # 이미지 저장 경로 설정
