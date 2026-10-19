@@ -20,7 +20,7 @@ services:
     networks:
       - app_network
     environment:
-      OLLAMA_BASE_URL: http://ollama_dev:11434
+      # [참고] 기존 (Ollama 사용 시): OLLAMA_BASE_URL: http://ollama_dev:11434
       PIP_INDEX_URL: https://pypi.tuna.tsinghua.edu.cn/simple
       PIP_TRUSTED_HOST: pypi.tuna.tsinghua.edu.cn
     tty: true
@@ -46,16 +46,17 @@ services:
     networks:
       - app_network
 
-  ollama_dev:
-    build:
-      context: ./ollama
-      dockerfile: Dockerfile
-    ports:
-      - "11434:11434"
-    volumes:
-      - ./ollama/models:/models
-    networks:
-      - app_network
+  # [참고] 기존 Ollama 서비스 — 현재 LLM 은 OpenRouter(Gemma 4 26B) 사용으로 미사용
+  # ollama_dev:
+  #   build:
+  #     context: ./ollama
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ./ollama/models:/models
+  #   networks:
+  #     - app_network
 
 networks:
   app_network:
