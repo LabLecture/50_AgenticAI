@@ -1,3 +1,7 @@
+-- 테이블 스키마: agent (.env 의 DB_SCHEMA=agent 와 일치해야 함)
+CREATE SCHEMA IF NOT EXISTS agent;
+SET search_path TO agent;
+
 CREATE TABLE wj_members (
   user_id VARCHAR(50) NOT NULL,
   user_name VARCHAR(100) NOT NULL,

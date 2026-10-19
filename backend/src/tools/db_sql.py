@@ -1,7 +1,7 @@
 import os
 
-# 스키마는 .env 의 DB_SCHEMA (기본 public, insert.sql 기준). 기존 운영 DB 는 graywhale
-DB_SCHEMA = os.getenv("DB_SCHEMA", "public")
+# 스키마는 .env 의 DB_SCHEMA (기본 agent, insert.sql 기준). 기존 운영 DB 는 graywhale
+DB_SCHEMA = os.getenv("DB_SCHEMA") or "agent"
 
 select_test = f"""
     SELECT * FROM {DB_SCHEMA}.wj_members
