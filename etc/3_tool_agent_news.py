@@ -69,7 +69,14 @@ def execute_tool_calls(tool_call_results):
             # 일치하는 도구를 찾지 못했다면 경고 메시지를 출력합니다.
             print(f"경고: {tool_name}에 해당하는 도구를 찾을 수 없습니다.")
 
-llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)	# 모델 생성
+# [참고] 기존: llm = ChatOpenAI(model="gpt-4o-mini", temperature=0)
+# OpenRouter Gemma 4 26B A4B 사용 (OPENROUTER_API_KEY 필요)
+llm = ChatOpenAI(
+    model=os.getenv("OPENROUTER_MODEL", "google/gemma-4-26b-a4b-it"),
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url="https://openrouter.ai/api/v1",
+    temperature=0,
+)
 llm_with_tools = llm.bind_tools(tools)		            # 도구 바인딩
 
 news_url = "https://n.news.naver.com/article/607/0000002452"    
