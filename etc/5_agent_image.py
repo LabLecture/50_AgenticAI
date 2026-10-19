@@ -1,3 +1,7 @@
+# ※ [메모 2026-10] 이미지 생성 API 정책 변경으로 현재 이 실습은 진행이 어렵습니다.
+#    - DALL-E(dall-e-3) 서비스 종료, Hugging Face Inference Providers 정책 변경
+#    - OpenRouter 이미지 모델은 키 잔액 $1 이상 필요
+#    코드는 참고용으로 원본 그대로 둡니다.
 import os
 from datetime import datetime
 from PIL import Image
