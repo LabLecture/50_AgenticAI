@@ -85,7 +85,7 @@ def _make_receipt_png(path: Path) -> None:
 def _make_demo_pdf(path: Path) -> None:
     """간단한 1 페이지 PDF (PyMuPDF). VLM 으로 페이지 이미지 분석."""
     try:
-        import fitz  # PyMuPDF
+        import pymupdf as fitz  # PyMuPDF (import fitz 는 deprecated)
     except ImportError:
         return  # 없으면 생략
 
@@ -100,7 +100,7 @@ def _make_demo_pdf(path: Path) -> None:
         "-------------------------------------\n"
         "Cloud GPU Hour         24    $1.20\n"
         "API Calls (1k)         50    $0.30\n"
-        "Support (hr)            2    $50.00\n"
+        "Support (hr)            2    $57.50\n"   # 28.80 + 15.00 + 115.00 = 158.80
         "-------------------------------------\n"
         "                          TOTAL: $158.80\n\n"
         "Due Date: 2026-07-02\n"

@@ -25,7 +25,8 @@ QUESTIONS = {
     "local_fact":   "Claude 를 개발한 회사는?",
     "multi_hop":    "Anthropic 의 설립자가 이전에 일했던 회사는?",
     "global":       "이 그래프에 등장하는 핵심 조직 / 인물을 정리해줘.",
-    "aggregation":  "가장 많은 관계를 가진 엔티티는?",
+    # :Document(원문 청크) 노드·MENTIONS 관계는 제외하고 엔티티끼리의 관계만 센다
+    "aggregation":  "(:__Entity__)-[r]-(:__Entity__) 관계만 세었을 때, 가장 많은 관계를 가진 엔티티는?",
 }
 
 
@@ -41,13 +42,17 @@ def main() -> None:
         print("❌ NEO4J_* env 미설정")
         return
 
-    # Vector RAG: Neo4jVector(document_chunks) 위에서 유사도 검색 + LLM
-    chunk_index = Neo4jVector.from_existing_index(
+    # Vector RAG: 08 단계(include_source=True)가 만든 :Document 원문 노드에 벡터 인덱스 생성 후 검색 + LLM
+    #   (08 의 reset_neo4j 가 :Chunk / document_chunks 를 지우므로 기존 인덱스 재사용 불가)
+    chunk_index = Neo4jVector.from_existing_graph(
         embedding=get_embeddings(),
         url=os.environ["NEO4J_URI"],
         username=os.environ["NEO4J_USERNAME"],
         password=os.environ["NEO4J_PASSWORD"],
-        index_name="document_chunks",  # 08 단계에서 include_source=True 로 생성된 :Document 노드 활용
+        index_name="source_docs",
+        node_label="Document",
+        text_node_properties=["text"],
+        embedding_node_property="embedding",
     )
     rag_prompt = ChatPromptTemplate.from_messages([
         ("system",

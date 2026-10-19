@@ -12,6 +12,7 @@ _sys.path.insert(0, str(_Path(__file__).resolve().parent.parent))
 from _common import get_llm, binary_yesno, banner
 
 MAX_RETRIES = 3
+MAX_GENERATIONS = 2   # 환각 → 재생성 루프 상한 (generate 호출 횟수)
 
 
 # ── 채점 후 분기 ───────────────────────────────────────────────────
@@ -41,7 +42,8 @@ def grade_generation(state) -> str:
         f"문서:\n{chr(10).join(state['documents'])}\n\n답변:\n{state['generation']}",
     )
     if hallu == "no":
-        if state.get("retry_count", 0) >= MAX_RETRIES:
+        if (state.get("retry_count", 0) >= MAX_RETRIES
+                or state.get("gen_count", 0) >= MAX_GENERATIONS):
             print("    환각 감지 but 상한 도달 → useful 로 종료")
             return "useful"
         print("    환각 감지 → not_supported (재생성)")
@@ -69,3 +71,4 @@ if __name__ == "__main__":
     print(f"  - decide_to_generate(state) → 'transform_query' | 'generate'")
     print(f"  - grade_generation(state)   → 'not_supported' | 'useful' | 'not_useful'")
     print(f"  - MAX_RETRIES = {MAX_RETRIES}")
+    print(f"  - MAX_GENERATIONS = {MAX_GENERATIONS}")

@@ -90,7 +90,8 @@ def generate(state) -> dict:
         "context": "\n\n".join(state["documents"]),
         "question": state["question"],
     })
-    return {"generation": answer}
+    # 재생성 루프 상한용 카운터 (09 grade_generation 에서 확인)
+    return {"generation": answer, "gen_count": state.get("gen_count", 0) + 1}
 
 
 def transform_query(state) -> dict:

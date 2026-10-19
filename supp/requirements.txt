@@ -13,7 +13,7 @@
 #
 # 키 설정 (.env):
 #   OPENROUTER_API_KEY=sk-or-v1-...
-#   OPENROUTER_MODEL=openai/gpt-oss-20b:free    # (선택) free 모델 덮어쓰기
+#   OPENROUTER_MODEL=google/gemma-4-26b-a4b-it:free    # (선택) 기본 모델 덮어쓰기 (gpt-oss-20b:free 는 OpenRouter 에서 삭제됨)
 
 # --- LangGraph / LangChain 1.x 스택 ---
 langgraph==1.2.2
@@ -32,7 +32,8 @@ sentence-transformers==5.5.1
 chromadb==1.5.9
 
 # --- 웹 검색 (Tavily 키 없이도 동작) ---
-duckduckgo-search==8.1.1
+# duckduckgo-search 는 ddgs 로 이름 변경됨 (_common.py 가 ddgs 를 먼저 import)
+ddgs==9.16.0
 
 # --- 키 관리 ---
 python-dotenv==1.2.2
@@ -52,7 +53,7 @@ json-repair==0.59.10
 
 # --- 멀티모달 챗봇 (supp_05) ---
 # VLM: OpenRouter free vision 모델 (.env 의 OPENROUTER_VISION_MODEL).
-#   기본: google/gemma-4-31b-it:free (image input 지원 확인됨)
+#   기본: nvidia/nemotron-3.5-super-vl:free (image input 지원 확인됨)
 # CLIP 임베딩: open-clip-torch (ViT-B-32 ~150MB, 첫 호출 시 자동 다운로드)
 # STT: faster-whisper (로컬, OpenAI 키 불필요. base 모델 ~140MB)
 # TTS: edge-tts (Microsoft Edge 음성, 무료, 한국어 신경망 보이스 다수)
@@ -79,9 +80,19 @@ rapidfuzz==3.14.5
 # --- Google ADK (supp_07) ---
 # OpenRouter free 모델은 google-adk[extensions] 의 LiteLlm 으로 wrap.
 # 운영 시 Cloud Run / Vertex AI Agent Engine 배포는 별도 gcloud auth 필요.
-google-adk[extensions]==2.1.0
-litellm==1.83.14
+# 2.1.0 은 gradio 6.x 와 starlette 버전 충돌 → 2.12.0
+google-adk[extensions]==2.12.0
+litellm==1.106.0          # google-adk 2.12.0 이 litellm>=1.84 요구
 
 # --- grpcio 1.71 고정 (supp_06 Windows DLL 호환) ---
 # grpcio 1.81 빌드가 Windows 보안 정책에 막혀 DLL 로드 실패하는 사례 → 1.71.0 안정.
 grpcio==1.71.0
+
+# --- demo_helpdesk (supp_03) / 노트북 실행 / 그래프 시각화 ---
+psycopg[binary]==3.3.6     # demo_helpdesk Postgres
+fastapi                    # demo_helpdesk/04_api.py
+uvicorn                    # demo_helpdesk/04_api.py
+grandalf                   # 11_visualize.py ASCII 그래프
+nbclient                   # .ipynb 일괄 실행
+nest_asyncio               # 노트북 setup 셀
+certifi                    # 노트북 setup 셀 (SSL 인증서)

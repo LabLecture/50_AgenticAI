@@ -28,6 +28,7 @@ class GraphState(TypedDict):
     generation: str
     retry_count: int
     web_search: str
+    gen_count: int      # generate 실행 횟수 (재생성 루프 상한)
 
 
 def build_app():
@@ -67,7 +68,7 @@ def build_app():
 
 def run_one(question: str) -> None:
     app = build_app()
-    inputs = {"question": question, "retry_count": 0}
+    inputs = {"question": question, "retry_count": 0, "gen_count": 0}
 
     print("\n" + "═" * 70)
     print(f"🚀 RUN: {question}")

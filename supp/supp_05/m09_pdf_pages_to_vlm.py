@@ -18,7 +18,7 @@ from _common import get_vlm, banner, llm_unavailable
 
 def pdf_to_images(pdf_path: str, dpi: int = 150, max_pages: int = 3):
     """각 페이지를 PNG bytes 로 반환."""
-    import fitz  # PyMuPDF
+    import pymupdf as fitz  # PyMuPDF (import fitz 는 deprecated)
     doc = fitz.open(pdf_path)
     images = []
     for i, page in enumerate(doc):

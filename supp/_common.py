@@ -3,11 +3,12 @@
 
 설계 결정
 ---------
-* LLM   : OpenRouter free 모델 (`openai/gpt-oss-20b:free`).
-          `OPENROUTER_MODEL` 환경변수로 덮어쓰기 가능.
+* LLM   : OpenRouter `deepseek/deepseek-v4-flash` (유료, 저가). free 로 쓰려면
+          `OPENROUTER_MODEL=google/gemma-4-26b-a4b-it:free` 등으로 덮어쓰기.
+          (`openai/gpt-oss-20b:free` 는 OpenRouter 에서 삭제됨)
 * 임베딩: HuggingFace `intfloat/multilingual-e5-small` (한국어 OK, OpenAI 키 불필요)
 * 벡터DB: 인메모리 Chroma (매 실행마다 새로 생성)
-* 웹검색: DuckDuckGo (`duckduckgo-search`). Tavily 키 없이도 동작.
+* 웹검색: DuckDuckGo (`ddgs`, 구 `duckduckgo-search`). Tavily 키 없이도 동작.
 * .env  : 모듈 import 시점에 자동 로드.
 """
 from __future__ import annotations
@@ -44,8 +45,8 @@ def get_llm(temperature: float = 0):
     if not api_key:
         return None
 
-    # 기본: google/gemma-4-26b-a4b-it:free (2026-06-03 시점 가장 안정. 응답 깔끔, 한국어 OK).
-    # 과거 openai/gpt-oss-20b:free 가 'no healthy upstream' (503) 으로 지속 장애.
+    # 기본: deepseek/deepseek-v4-flash (유료, 저가). free 대안: google/gemma-4-26b-a4b-it:free.
+    # openai/gpt-oss-20b:free 는 OpenRouter 에서 삭제됨.
     # 시점별 가용성 변동 가능 — .env 의 OPENROUTER_MODEL 로 언제든 교체.
     model = os.getenv("OPENROUTER_MODEL", "deepseek/deepseek-v4-flash")
     # model = os.getenv("OPENROUTER_MODEL", "google/gemma-4-26b-a4b-it:free")
@@ -63,8 +64,8 @@ def get_vlm(temperature: float = 0):
     """OpenRouter free Vision 모델 ChatOpenAI 반환 (supp_05 멀티모달용).
 
     `OPENROUTER_VISION_MODEL` env 로 덮어쓰기 가능.
-    기본값: `google/gemma-4-31b-it:free` — image input 지원 확인된 free 모델.
-    대안: `nvidia/nemotron-nano-12b-v2-vl:free`, `google/gemma-4-26b-a4b-it:free` 등.
+    기본값: `nvidia/nemotron-3.5-super-vl:free` — image input 지원 확인된 free 모델.
+    대안: `google/gemma-4-31b-it:free`, `google/gemma-4-26b-a4b-it:free` 등 (429 잦음).
     """
     from langchain_openai import ChatOpenAI
 
@@ -72,7 +73,7 @@ def get_vlm(temperature: float = 0):
     if not api_key:
         return None
 
-    model = os.getenv("OPENROUTER_VISION_MODEL", "google/gemma-4-31b-it:free")
+    model = os.getenv("OPENROUTER_VISION_MODEL", "nvidia/nemotron-3.5-super-vl:free")
     return ChatOpenAI(
         model=model,
         temperature=temperature,
@@ -86,7 +87,7 @@ def get_vlm(temperature: float = 0):
 def structured(llm, schema):
     """구조화 출력 — free 모델 호환성을 위해 json_mode 사용.
 
-    OpenRouter free 모델(gpt-oss, qwen 등) 은 default 인 function_calling
+    OpenRouter free 모델(gemma, qwen 등) 은 default 인 function_calling
     이 불안정해서 텍스트 prefix 가 섞이거나 choices 가 None 인 응답이 종종 옴.
     json_mode 는 response_format={"type":"json_object"} 만 요구해서 더 호환성 좋음.
 
@@ -98,7 +99,7 @@ def structured(llm, schema):
 def binary_yesno(llm, system_msg: str, user_msg: str) -> str:
     """이진 yes/no 채점 — Pydantic / structured output 우회.
 
-    free 모델(`gpt-oss-20b:free` 등) 의 structured output 은 schema 미준수
+    free 모델 의 structured output 은 schema 미준수
     응답(`{}`) 이 자주 나오므로, 단순 yes/no 판정은 plain text 로 받아 파싱.
     응답 어디든 'yes' 가 있으면 'yes', 그 외 'no' (보수적 디폴트).
     """

@@ -34,8 +34,7 @@ def main() -> None:
 
     demo = gr.ChatInterface(
         fn=respond,
-        multimodal=True,
-        type="messages",
+        multimodal=True,   # Gradio 6.x: type 인자 삭제됨 (messages 형식이 기본)
         title="멀티모달 챗봇 (supp_05)",
         description="이미지를 올리고 질문해보세요. 후속 질문에 이미지는 재전송 안 해도 됩니다.",
     )

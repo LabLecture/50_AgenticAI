@@ -30,10 +30,9 @@ def main() -> None:
 
     print(f"\n  📋 OpenRouter free vision 모델 (.env 의 OPENROUTER_VISION_MODEL 로 교체)")
     candidates = [
-        "google/gemma-4-31b-it:free          (default)",
+        "nvidia/nemotron-3.5-super-vl:free   (default)",
+        "google/gemma-4-31b-it:free",
         "google/gemma-4-26b-a4b-it:free      (좀 더 작은 변형)",
-        "nvidia/nemotron-nano-12b-v2-vl:free (소형 VL 전문 모델)",
-        "moonshotai/kimi-k2.6:free",
         "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
     ]
     for c in candidates:

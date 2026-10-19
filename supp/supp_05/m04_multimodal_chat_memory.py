@@ -49,17 +49,21 @@ def main() -> None:
     assets = ensure_assets()
     chat = MultimodalChat(llm)
 
-    # 1턴: 이미지 + 첫 질문
-    print("\n[Turn 1] (이미지 첨부)")
-    print("  USER : 이 차트의 항목들과 값을 알려줘.")
-    r1 = chat.send("이 차트의 항목들과 값을 알려줘.", image_path=assets["chart"])
-    print(f"  BOT  : {r1.strip()[:300]}")
+    # API 오류 (429 등) 시 Traceback 대신 경고만 출력 (m03/m06 과 동일)
+    try:
+        # 1턴: 이미지 + 첫 질문
+        print("\n[Turn 1] (이미지 첨부)")
+        print("  USER : 이 차트의 항목들과 값을 알려줘.")
+        r1 = chat.send("이 차트의 항목들과 값을 알려줘.", image_path=assets["chart"])
+        print(f"  BOT  : {r1.strip()[:300]}")
 
-    # 2턴: 텍스트만 — 모델이 1턴의 이미지를 기억해야 답할 수 있는 후속 질문
-    print("\n[Turn 2] (이미지 재전송 X — 1턴 이미지 맥락 활용)")
-    print("  USER : 그럼 가장 작은 항목은?")
-    r2 = chat.send("그럼 가장 작은 항목은?")
-    print(f"  BOT  : {r2.strip()[:300]}")
+        # 2턴: 텍스트만 — 모델이 1턴의 이미지를 기억해야 답할 수 있는 후속 질문
+        print("\n[Turn 2] (이미지 재전송 X — 1턴 이미지 맥락 활용)")
+        print("  USER : 그럼 가장 작은 항목은?")
+        r2 = chat.send("그럼 가장 작은 항목은?")
+        print(f"  BOT  : {r2.strip()[:300]}")
+    except Exception as e:
+        print(f"⚠  {type(e).__name__}: {str(e)[:200]}")
 
     print(f"\n📊 메시지 이력 길이: {len(chat.history)} (Human/AI 교차)")
     print("💡 토큰 절감 팁: 오래된 이미지 블록을 텍스트 요약으로 교체하거나, 최근 N개만 유지.")

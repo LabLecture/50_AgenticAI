@@ -1,5 +1,5 @@
 # [6교시] 프론트 개발 컨테이너 — npm start (개발 서버)
-FROM node:18
+FROM node:22
 
 WORKDIR /app
 COPY package*.json ./

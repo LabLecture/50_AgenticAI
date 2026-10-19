@@ -73,12 +73,17 @@ def health():
 # ── [2교시] 비스트리밍 — day13 /chat 과 동일 계약 ──────────────────────────
 @app.post("/chat")
 async def chat(req: ChatRequest):
-    resp = await client.chat.completions.create(
-        model=MODEL,
-        messages=[{"role": "user", "content": req.message}],
-        temperature=req.temperature,
-    )
-    return {"reply": resp.choices[0].message.content}
+    # LLM 오류(키 만료·401·429 등)를 잡아 정상 JSON 으로 반환
+    # → 처리 안 된 500 은 CORS 헤더가 빠져 브라우저에서 CORS 에러로 오인됨
+    try:
+        resp = await client.chat.completions.create(
+            model=MODEL,
+            messages=[{"role": "user", "content": req.message}],
+            temperature=req.temperature,
+        )
+        return {"reply": resp.choices[0].message.content}
+    except Exception as e:
+        return {"reply": f"[LLM 오류] {type(e).__name__}: {str(e)[:200]}"}
 
 
 # 공통 토큰 제너레이터 — day14 의 토큰 루프를 재사용 (가드 포함)

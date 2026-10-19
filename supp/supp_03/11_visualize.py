@@ -15,7 +15,8 @@ import sys
 from _common import banner
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-build_and_run = importlib.import_module("16_build_and_run")
+# 단일 Agentic RAG 그래프 (10) 시각화 — 멀티에이전트는 16_build_and_run
+build_and_run = importlib.import_module("10_build_and_run")
 
 
 def main() -> None:
