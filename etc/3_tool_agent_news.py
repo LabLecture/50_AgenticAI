@@ -9,7 +9,7 @@ load_dotenv()
 import re
 import requests
 from bs4 import BeautifulSoup
-from langchain.agents import tool
+from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
 from langchain_core.output_parsers.openai_tools import JsonOutputToolsParser
 
@@ -82,8 +82,7 @@ news_url = "https://n.news.naver.com/article/607/0000002452"
 ############## 다음(우측) 실행시 1차 실행 마지막 두줄 주석 후 실행
 
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain.agents import create_tool_calling_agent
-from langchain.agents import AgentExecutor
+from langchain_classic.agents import AgentExecutor, create_tool_calling_agent  # langchain 1.x: classic 패키지로 이동
 
 # Agent프롬프트 생성
 prompt = ChatPromptTemplate.from_messages(

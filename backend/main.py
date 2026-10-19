@@ -17,17 +17,11 @@ load_dotenv()       # .env 파일에 정의된 API 키나 환경 변수들을 �
 app = FastAPI()     # [1]. FastAPI 앱 생성
 
 # [2]. 언어 모델(LLM) 설정
-# llm = OpenAI(
-#     model_name="gpt-3.5-turbo-instruct",
-#     temperature=0.2,  # 응답의 창의성(무작위성) 조절
-#     max_tokens=512,
-#     streaming=True
-# )
 # llm = ChatOllama(model="mistral:latest")
 api_key = os.getenv("OPENROUTER_API_KEY")
 
 llm = ChatOpenAI(
-    model="openai/gpt-oss-20b:free",
+    model=os.getenv("OPENROUTER_MODEL", "openai/gpt-oss-20b"),  # :free 모델은 404 → .env 로 교체 가능
     temperature=0.2,  # 응답의 창의성(무작위성) 조절
     api_key=api_key,
     base_url="https://openrouter.ai/api/v1",
@@ -38,7 +32,7 @@ llm = ChatOpenAI(
 # [3]. 임베딩 모델 설정
 # embeddings_model = OpenAIEmbeddings()
 # HuggingFaceEmbeddings 초기화
-embeddings_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")        
+embeddings_model = HuggingFaceEmbeddings(model_name="intfloat/multilingual-e5-small")  # 한국어 지원 다국어 임베딩        
 
 # [4]. Vector Store 및 Retriever 설정
 # db = Chroma(persist_directory="./vector_store", embedding_function=OpenAIEmbeddings())
@@ -81,6 +75,8 @@ async def chat(query: UserQuery):
         return {"answer": answer}   # 응답 반환
     except Exception as e:
         print(e)
+        # 프런트엔드(Chat.js)는 response.data.answer 만 읽으므로 같은 키로 오류 메시지 반환
+        return {"answer": f"오류가 발생했습니다: {e}"}
 
 
 # [9]. 직접 실행 진입점 — 포트는 여기서 지정한다 (python main.py → 8002 포트로 기동)

@@ -21,7 +21,7 @@ if __name__ == "__main__":
     
     # embeddings_model = OpenAIEmbeddings()
     # HuggingFaceEmbeddings 초기화
-    embeddings_model = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")        
+    embeddings_model = HuggingFaceEmbeddings(model_name="intfloat/multilingual-e5-small")  # 한국어 지원 다국어 임베딩        
 
     for file in file_path.glob("*.pdf"):
         loader = PyPDFLoader(str(file))
