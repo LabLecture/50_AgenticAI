@@ -3,7 +3,7 @@ python-dotenv
 pydantic>=2
 langgraph>=0.3
 langchain-core>=0.3
-langchain-ollama
+langchain-openai
 langchain-community
 langchain-tavily
 langchain-experimental

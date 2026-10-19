@@ -1,3 +1,4 @@
+import os
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -16,11 +17,18 @@ from langgraph.graph.message import add_messages
 class State(TypedDict):
     messages: Annotated[list, add_messages]
 
-from langchain_ollama import ChatOllama
+# [참고] 기존: from langchain_ollama import ChatOllama
+from langchain_openai import ChatOpenAI
 
 # LLM 초기화
 # llm = ChatOllama(model="mistral:latest", temperature=0)
-llm = ChatOllama(model="qwen3:8b")
+# [참고] 기존: llm = ChatOllama(model="qwen3:8b")
+# OpenRouter Gemma 4 26B A4B 사용 (OPENROUTER_API_KEY 필요)
+llm = ChatOpenAI(
+    model=os.getenv("OPENROUTER_MODEL", "google/gemma-4-26b-a4b-it"),
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url="https://openrouter.ai/api/v1",
+)
 
 # LLM 에 도구 바인딩
 llm_with_tools = llm.bind_tools(tools)      # ChatOpenAI 에만 적용됨.

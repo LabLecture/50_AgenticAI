@@ -10,7 +10,8 @@ from src.utils import format_docs
 from src.prompt import prompt
 from dotenv import load_dotenv
 # from langchain_community.chat_models import ChatOllama
-from langchain_ollama import ChatOllama
+# [참고] 기존: from langchain_ollama import ChatOllama
+from langchain_openai import ChatOpenAI
 import os
 
 load_dotenv()
@@ -24,7 +25,13 @@ app = FastAPI()
 #     streaming=True
 # )
 # llm = ChatOllama(model="mistral:latest")
-llm = ChatOllama(model="mistral:latest", base_url="http://ollama_dev:11434")
+# [참고] 기존: llm = ChatOllama(model="mistral:latest", base_url="http://ollama_dev:11434")
+# OpenRouter Gemma 4 26B A4B 사용 (OPENROUTER_API_KEY 필요)
+llm = ChatOpenAI(
+    model=os.getenv("OPENROUTER_MODEL", "google/gemma-4-26b-a4b-it"),
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url="https://openrouter.ai/api/v1",
+)
 # llm = ChatOllama(model="mistral:latest", base_url=os.getenv("OLLAMA_BASE_URL"))
 
 # embeddings_model = OpenAIEmbeddings()

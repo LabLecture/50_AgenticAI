@@ -4,11 +4,16 @@
 # In[ ]:
 
 
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
 from typing import Annotated, TypedDict
 from langgraph.graph import StateGraph, START, END
 from langgraph.graph.message import add_messages
 from langchain_core.messages import HumanMessage
-from langchain_ollama import ChatOllama
+# [참고] 기존: from langchain_ollama import ChatOllama
+from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import ToolNode, tools_condition
 
 # function_call_tool.py에서 tools를 가져온다고 가정합니다.
@@ -21,7 +26,13 @@ class State(TypedDict):
 
 # 2. LLM 초기화 및 도구 바인딩
 # llm = ChatOllama(model="mistral:latest")
-llm = ChatOllama(model="qwen3:8b")
+# [참고] 기존: llm = ChatOllama(model="qwen3:8b")
+# OpenRouter Gemma 4 26B A4B 사용 (OPENROUTER_API_KEY 필요)
+llm = ChatOpenAI(
+    model=os.getenv("OPENROUTER_MODEL", "google/gemma-4-26b-a4b-it"),
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url="https://openrouter.ai/api/v1",
+)
 llm_with_tools = llm.bind_tools(tools)
 
 # 3. 노드 함수 정의
