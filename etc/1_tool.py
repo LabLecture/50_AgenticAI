@@ -1,4 +1,5 @@
 from langchain_experimental.tools import PythonREPLTool
+import os
 from dotenv import load_dotenv
 load_dotenv()
 # 파이썬 코드를 실행하는 도구를 생성합니다.
@@ -30,7 +31,14 @@ prompt = ChatPromptTemplate.from_messages(
     ]
 )
 # LLM 모델 생성
-llm = ChatOpenAI(model="gpt-4o", temperature=0)
+# [참고] 기존: llm = ChatOpenAI(model="gpt-4o", temperature=0)
+# OpenRouter Gemma 4 26B A4B (OPENROUTER_MODEL 로 변경 가능)
+llm = ChatOpenAI(
+    model=os.getenv("OPENROUTER_MODEL") or "google/gemma-4-26b-a4b-it",
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url="https://openrouter.ai/api/v1",
+    temperature=0,
+)
 
 # 프롬프트와 LLM 모델을 사용하여 체인 생성
 chain = prompt | llm | StrOutputParser() | RunnableLambda(print_and_execute)

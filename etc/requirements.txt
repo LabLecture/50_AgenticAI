@@ -173,4 +173,3 @@ yarl==1.17.1
 zipp==3.21.0
 mcp>=1.2,<2
 youtube-transcript-api>=1.0
-langchain-ollama

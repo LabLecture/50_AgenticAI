@@ -5,7 +5,11 @@ import sys
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 
-from langchain_ollama import ChatOllama
+# from langchain_ollama import ChatOllama
+from langchain_openai import ChatOpenAI
+from dotenv import load_dotenv
+
+load_dotenv()  # etc/.env 의 OPENROUTER_API_KEY 로드
 from langchain_core.messages import SystemMessage, HumanMessage, ToolMessage
 
 async def run_youtube_agent():
@@ -27,7 +31,13 @@ async def run_youtube_agent():
                 await session.initialize()  # MCP 프로토콜 초기화 (핸드셰이크)
                 print("--- MCP 서버 연결 완료 ---")
 
-                llm = ChatOllama(model="qwen3:8b")
+                # [참고] 기존: llm = ChatOllama(model="qwen3:8b")
+                # OpenRouter Gemma 4 26B A4B (OPENROUTER_MODEL 로 변경 가능)
+                llm = ChatOpenAI(
+                    model=os.getenv("OPENROUTER_MODEL") or "google/gemma-4-26b-a4b-it",
+                    api_key=os.getenv("OPENROUTER_API_KEY"),
+                    base_url="https://openrouter.ai/api/v1",
+                )
 
                 # [3]. 도구 정의 (LLM에게 "너는 이런 도구를 쓸 수 있어"라고 명세 전달)
                 # JSON 구조 -> LLM의 도구 이름을 부르고 인자를 채우는 기준
