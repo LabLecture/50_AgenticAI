@@ -1,5 +1,6 @@
-FROM node:14
-  
+# [참고] 기존: FROM node:14 + react-scripts(CRA) → CRA 지원 종료로 Vite 로 이전
+FROM node:22
+
 WORKDIR /app
 
 COPY package*.json ./
@@ -7,11 +8,8 @@ COPY package*.json ./
 RUN npm install
 
 COPY . .
-COPY .env.* ./
-
-ARG REACT_APP_URL
-ENV REACT_APP_URL $REACT_APP_URL
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+# Vite 개발 서버 (vite.config.js 에서 host: true, port: 3000)
+CMD ["npm", "run", "dev"]
