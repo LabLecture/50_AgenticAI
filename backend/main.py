@@ -10,7 +10,7 @@ from pydantic import BaseModel
 
 from llama_index.core import VectorStoreIndex, PromptTemplate, Settings
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
-from llama_index.llms.ollama import Ollama
+# from llama_index.llms.ollama import Ollama   # [참고] 기존: 로컬 Ollama (현재 OpenRouter 사용)
 from llama_index.llms.openrouter import OpenRouter   # [추가] OpenRouter (OpenAI 호환) — main 브랜치와 동일 방식
 from llama_index.core import StorageContext
 from llama_index.vector_stores.chroma import ChromaVectorStore
@@ -42,7 +42,8 @@ app = FastAPI()
 # ── [변경] main 브랜치처럼 OpenRouter 사용 (OpenAI 호환 게이트웨이). 키는 .env 의 OPENROUTER_API_KEY ──
 llm = OpenRouter(
     api_key=os.getenv("OPENROUTER_API_KEY"),
-    model="openai/gpt-oss-20b:free",
+    # model="openai/gpt-oss-20b:free",   # [참고] 기존: OpenRouter 무료 모델 종료(404)
+    model=os.getenv("OPENROUTER_MODEL") or "google/gemma-4-26b-a4b-it",   # [변경] Gemma 4 26B A4B (.env 로 변경 가능)
     max_tokens=512,
     temperature=0.2,
     context_window=8192,
