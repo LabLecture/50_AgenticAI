@@ -1,0 +1,3 @@
+# 호스트(Windows) node_modules 가 이미지에 덮어써지지 않도록 제외
+node_modules
+build

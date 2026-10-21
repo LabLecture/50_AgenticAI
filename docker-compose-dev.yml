@@ -12,8 +12,8 @@ services:
       - "8002:8002"
     networks:
       - app_network
-    environment:
-      OLLAMA_BASE_URL: http://ollama_dev:11434
+    # environment:
+      # [참고] 기존 (Ollama 사용 시): OLLAMA_BASE_URL: http://ollama_dev:11434
   
   react_dev:
     build:
@@ -23,21 +23,19 @@ services:
       - ./frontend/.env.development
     ports:
       - "3000:3000"
-    environment:
-      REACT_APP_URL: http://localhost:3000  
-      DISABLE_ESLINT_PLUGIN: "true"
-      CI: "false"
+    # [참고] 기존 CRA 용 환경변수 (REACT_APP_URL, DISABLE_ESLINT_PLUGIN, CI) — Vite 이전 후 미사용
     networks:
       - app_network
 
-  ollama_dev:
-    build:
-      context: ./ollama
-      dockerfile: Dockerfile
-    ports:
-      - "11434:11434"
-    volumes:
-      - ./ollama/models:/models
+  # [참고] 기존 Ollama 서비스 — 현재 LLM 은 OpenRouter(Gemma 4 26B) 사용으로 미사용
+  # ollama_dev:
+  #   build:
+  #     context: ./ollama
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "11434:11434"
+  #   volumes:
+  #     - ./ollama/models:/models
 
 networks:
   app_network:
