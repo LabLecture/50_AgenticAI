@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from llama_index.core.schema import TextNode, Document      # postgre vector store
 from llama_index.core.node_parser import SentenceSplitter
 try:
-    from llama_parse import LlamaParse   # PDF 파싱용(클라우드) — 미설치/키없음이면 xlsx 만 처리
+    from llama_parse import LlamaParse   # PDF 파싱용(클라우드) — 미설치/키없음이면 xlsx 만 처리 (llama-parse 는 deprecated, requirements 에서 제외)
 except ImportError:
     LlamaParse = None
 from llama_index.vector_stores.postgres import PGVectorStore
