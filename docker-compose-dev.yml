@@ -10,10 +10,12 @@ services:
       # 호스트 8002 → 컨테이너 8002 (uvicorn --port 8002 또는 python main.py 와 맞춤)
       - "8002:8002"
     volumes:
-      - ./backend:/app                    # 소스 코드 마운트
-      - ./vector_store:/app/vector_store  # 벡터 스토어 마운트
+      - ./backend:/app                    # 소스 코드 마운트 (backend/vector_store 포함)
+      # [참고] 기존: ./vector_store:/app/vector_store — 루트에 없는 폴더라 빈 폴더로 덮어써져 검색 결과가 0건이 됨
     networks:
       - app_network
+    # 컨테이너 기동 시 서버 자동 실행 (로그: docker compose -f docker-compose-dev.yml logs -f backend_dev)
+    command: ["python", "-u", "main.py"]  # -u: print 출력도 바로 로그에 표시
     # environment:
       # [참고] 기존 (Ollama 사용 시): OLLAMA_BASE_URL: http://ollama_dev:11434
     # 컨테이너가 계속 실행되도록 설정
