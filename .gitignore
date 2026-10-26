@@ -7,3 +7,4 @@ frontend/node_modules
 .env
 *.pyc
 /supp
+/references
