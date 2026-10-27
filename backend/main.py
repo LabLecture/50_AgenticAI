@@ -2,21 +2,22 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from langchain_core.output_parsers import StrOutputParser
-from langchain_openai import ChatOpenAI
-from langchain_community.chat_models import ChatOllama
+from langchain_openai import ChatOpenAI          # OpenRouter 는 OpenAI 호환 API → ChatOpenAI 로 호출
+# from langchain_ollama import ChatOllama
 from src.prompt import prompts
 from dotenv import load_dotenv
 
 from typing import Optional, Dict
 import json
+import os
 
 ##########################
 from langchain_core.tools import tool
 from typing import Annotated
 from langchain_core.prompts.chat import ChatPromptTemplate, MessagesPlaceholder
-from langchain.agents import AgentExecutor, create_structured_chat_agent
-from langchain.memory import ConversationBufferMemory
-from langchain.globals import set_verbose, set_debug
+from langchain_classic.agents import AgentExecutor, create_structured_chat_agent   # langchain 1.x: 구 agents/memory 는 langchain_classic 로 이동
+from langchain_classic.memory import ConversationBufferMemory
+from langchain_core.globals import set_verbose, set_debug
 set_verbose(True)
 set_debug(True)
 
@@ -83,9 +84,17 @@ postrgre_db = PostgreSqlDB()
 # llm = ChatOllama(model="mistral-small:latest")
 # llm = ChatOllama(model="mistral:latest")
 # llm = ChatOllama(model="qwen3:14b")
-llm = ChatOllama(model="cogito:14b")
+# llm = ChatOllama(model="cogito:14b")
 # llm = ChatOllama(model="mistral-nemo:12b")
 # llm = ChatOllama(model="deepseek-r1:14b")
+llm = ChatOpenAI(   # [변경] Ollama → OpenRouter (main branch 와 동일)
+    model=os.getenv("OPENROUTER_MODEL") or "google/gemma-4-26b-a4b-it",  # OPENROUTER_MODEL 로 변경 가능
+    temperature=0.2,
+    api_key=os.getenv("OPENROUTER_API_KEY"),
+    base_url="https://openrouter.ai/api/v1",
+    max_retries=3,   # 일시적 429/5xx 는 자동 재시도
+    timeout=60,
+)
 
 
 origins = [
