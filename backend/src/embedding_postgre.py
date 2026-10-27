@@ -118,11 +118,11 @@ def is_doc(obj):
 def create_index(docs, schema_name="public", table_name="tmp"):
     """PostgreSQL 벡터 저장소 생성 및 문서 인덱싱"""
     vector_store = PGVectorStore.from_params(   # PostgreSQL 벡터 저장소 설정
-        database    = os.getenv("POSTGRES_DB", "hycu_dropout"),     # [변경] 로컬 postgres(.env)
-        host        = os.getenv("POSTGRES_HOST", "localhost"),
-        password    = os.getenv("POSTGRES_PASSWORD"),
-        port        = os.getenv("DB_PORT", "5432"),
-        user        = os.getenv("POSTGRES_USER"),
+        database    = os.getenv("PGDATABASE") or os.getenv("POSTGRES_DB", "postgres"),   # .env 는 PG* 키 사용 (POSTGRES_* 는 예전 키 호환)
+        host        = os.getenv("PGHOST") or os.getenv("POSTGRES_HOST", "localhost"),
+        password    = os.getenv("PGPASSWORD") or os.getenv("POSTGRES_PASSWORD"),
+        port        = os.getenv("PGPORT") or os.getenv("DB_PORT", "5432"),
+        user        = os.getenv("PGUSER") or os.getenv("POSTGRES_USER"),
         schema_name = schema_name,
         table_name  = table_name,
         embed_dim   = 384,
