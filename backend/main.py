@@ -45,11 +45,11 @@ embed_model = HuggingFaceEmbedding(model_name="sentence-transformers/all-MiniLM-
 
 # Vector Store
 vector_store = PGVectorStore.from_params(
-    database    = os.getenv("POSTGRES_DB", "hycu_dropout"),     # [변경] 로컬 postgres(.env)
-    host        = os.getenv("POSTGRES_HOST", "localhost"),
-    password    = os.getenv("POSTGRES_PASSWORD"),
-    port        = os.getenv("DB_PORT", "5432"),
-    user        = os.getenv("POSTGRES_USER"),
+    database    = os.getenv("PGDATABASE") or os.getenv("POSTGRES_DB", "postgres"),   # .env 는 PG* 키 사용 (POSTGRES_* 는 예전 키 호환)
+    host        = os.getenv("PGHOST") or os.getenv("POSTGRES_HOST", "localhost"),
+    password    = os.getenv("PGPASSWORD") or os.getenv("POSTGRES_PASSWORD"),
+    port        = os.getenv("PGPORT") or os.getenv("DB_PORT", "5432"),
+    user        = os.getenv("PGUSER") or os.getenv("POSTGRES_USER"),
     schema_name = "public",
     # ⚠ PGVectorStore 는 table_name 앞에 자동으로 'data_' 를 붙인다.
     #   → 실제 물리 테이블이 public.data_tmp_chatbot_00(61행) 이므로 여기엔 접두어 없이 "tmp_chatbot_00" 을 넣어야 한다.
