@@ -9,6 +9,7 @@ from src.config.agents import LLMType
 
 # OpenRouter 설정 (OPENROUTER_API_KEY 필수, OPENROUTER_MODEL 선택)
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
+# [참고] 기존 기본값 openai/gpt-oss-20b 는 가짜 tool_call(repo_browser.write 등)·빈 JSON 응답이 잦아 Gemma 4 로 변경
 OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "google/gemma-4-26b-a4b-it")
 
 

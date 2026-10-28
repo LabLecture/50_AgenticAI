@@ -63,6 +63,8 @@ interface Plan {
 - Ensure the plan is clear and logical, with tasks assigned to the correct agent based on their capabilities.
 - user_class_tool은 항상 학생 정보를 조회하는 첫 단계로 사용합니다.
 - class_progress_tool은 반드시 user_class_tool 실행 후에만 사용 가능합니다.
+- 이전 대화에서 assistant가 이미 수업 목록을 보여줬다면 user_class_tool은 실행된 것으로 간주하고 다시 실행하지 않습니다.
+  사용자가 수업 번호('3번')나 수업 이름으로 수업을 선택하면, 이전 대화의 학생 이름과 수업 목록에서 수업 이름/번호를 찾아 class_progress_tool 단계만 생성합니다.
 - class_progress_tool은 반드시 수업 이름(class_data), 수업 번호(class_id) 정보가 필요합니다. 
 - link_provider_tool은 반드시 수업 이름(class_data), 수업 번호(class_id) 정보가 필요합니다. 
 - 모호한 정보('제 딸', '초등학교')는 구체적인 값으로 취급하지 않습니다.

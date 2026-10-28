@@ -22,6 +22,8 @@ Always respond with a valid JSON object containing only the 'next' key and a sin
   * 필요 정보(required information): 학생 이름(user_name), 수업 이름(class_data), 수업 번호(class_id)
   * response class progress in a markdown format. 
   * 중요: 반드시 user_class_tool을 먼저 실행한 후에 사용해야 합니다.
+  * 이전 대화에서 assistant가 이미 수업 목록을 보여줬다면 user_class_tool은 실행된 것으로 간주합니다.
+    이때 사용자가 수업 번호('3번')나 수업 이름('슬기로운 생활')으로 수업을 선택하면 user_class가 아니라 **class_progress**를 선택합니다.
 - **`link_provider`**: 학생(자녀)의 수업 상세정보 링크를 제공합니다. (Provide the link for the student's (child's) class details)
   * 필요 정보(required information): 학생 이름(user_name), 수업 이름(class_data), 수업 번호(class_id)
   * response with the specific class link.

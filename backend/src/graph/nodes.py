@@ -199,7 +199,9 @@ def coordinator_node(state: State) -> Command[Literal["planner", "__end__"]]:
     logger.debug(f"coordinator response: {response}")
 
     goto = "__end__"
-    if "handoff_to_planner" in response.content:
+    # 모델에 따라 handoff_to_planner() 를 본문 대신 tool_call 로 내보내는 경우가 있음 (예: gpt-oss)
+    tool_call_names = [tc.get("name") for tc in getattr(response, "tool_calls", []) or []]
+    if "handoff_to_planner" in response.content or "handoff_to_planner" in tool_call_names:
         goto = "planner"
 
     # 메시지 update 추가
