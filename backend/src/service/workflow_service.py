@@ -6,6 +6,7 @@ from typing import Dict, List, Any
 from src.config import TEAM_MEMBERS
 from src.graph import build_graph
 from langchain_community.adapters.openai import convert_message_to_dict
+from langfuse.langchain import CallbackHandler
 import uuid
 
 # Configure logging
@@ -24,6 +25,10 @@ logger = logging.getLogger(__name__)
 
 # Create the graph
 graph = build_graph()
+
+# Initialize Langfuse CallbackHandler for Langchain (tracing)
+# 키는 .env 의 LANGFUSE_SECRET_KEY / LANGFUSE_PUBLIC_KEY / LANGFUSE_BASE_URL 사용
+langfuse_handler = CallbackHandler()
 
 async def run_agent_workflow(
     user_input_messages: list,
@@ -66,7 +71,10 @@ async def run_agent_workflow(
                 "search_before_planning": search_before_planning,
             },
             # version="v2",
-            config={"recursion_limit": 5}  # 재귀 제한을 5로 설정
+            config={
+                "recursion_limit": 5,  # 재귀 제한을 5로 설정
+                "callbacks": [langfuse_handler],  # Langfuse tracing
+            },
         )
         
         logger.debug(f"Graph execution completed with result: {result}")
