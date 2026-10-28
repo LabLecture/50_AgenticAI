@@ -11,3 +11,4 @@ backend/.env
 
 # 비밀키 파일 (.env.example 만 커밋)
 **/.env
+/references
